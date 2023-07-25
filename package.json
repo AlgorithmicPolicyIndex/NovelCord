@@ -1,0 +1,25 @@
+{
+  "name": "novelcord",
+  "version": "1.0.0",
+  "description": "A Discord bot for NovelAi story integration.",
+  "main": "index.js",
+  "scripts": {
+    "build": "tsc",
+    "test": "pnpm build && node build/index",
+    "dev": "",
+    "start": "node build/index"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/node": "^20.4.4",
+    "@typescript-eslint/eslint-plugin": "^6.2.0",
+    "@typescript-eslint/parser": "^6.2.0",
+    "eslint": "^8.45.0"
+  },
+  "dependencies": {
+    "python-shell": "^5.0.0",
+    "typescript": "^5.1.6"
+  }
+}
