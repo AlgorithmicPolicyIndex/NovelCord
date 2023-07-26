@@ -16,7 +16,7 @@ Welcome to a random Discord bot that I had the idea of creating.
 - Local vs Remote stories? ~~Not sure about the way context will be handled~~
 - Soon to be more as I get closer to a actual useable product.
 
-## Setup
+## Setup ( BOT DOES NOT WORK )
 Using your [NovelAi](https://novelai.net) account, insert your username and password inside the **[.env](python/.env)**  
 Head to the [DDP](https://discord.com/developers/applications) to get your bot Token, then paste it into the **[.env](src/.env)**
 
