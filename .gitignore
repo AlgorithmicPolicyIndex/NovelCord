@@ -4,4 +4,3 @@ __pycache__/
 tests/
 pnpm-lock.yaml
 .env
-python/.env

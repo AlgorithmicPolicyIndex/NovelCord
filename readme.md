@@ -9,19 +9,19 @@ Welcome to a random Discord bot that I had the idea of creating.
 
 ## Current Plans
 - Getting it to work, firstly
-- Integrate Discord.JS, currently only using a single file to just run the code.
+- Create commands and being work on python command handler
 
 ## Possible ideas
 - Upload custom stories to local or remote
 - Local vs Remote stories? ~~Not sure about the way context will be handled~~
 - Soon to be more as I get closer to a actual useable product.
 
-## Setup ( BOT DOES NOT WORK )
-Using your [NovelAi](https://novelai.net) account, insert your username and password inside the **[.env](python/.env)**  
-Head to the [DDP](https://discord.com/developers/applications) to get your bot Token, then paste it into the **[.env](src/.env)**
+## Setup ( BOT COMMANDS DO NOT WORK )
+Using your [NovelAi](https://novelai.net) account, insert your username and password inside the **[.env](python/example.env)**  
+Head to the [DDP](https://discord.com/developers/applications) to get your bot Token, then paste it into the **[.env](src/secrets/example.env)**
 
 **! ⚠️ ================================================ ⚠️ !  
-  I know I can combine the [Python .env](python/.env) and [Js .env](src/.env), but I am not very keen to figure out the implications of going outside the root directory to handle this.  
+  I know I can combine the [Python .env](python/example.env) and [Js .env](src/secrets/example.env), but I am not very keen to figure out the implications of going outside the root directory to handle this.  
   If you know how to do this, feel free to do that.  
 ! ⚠️ ================================================ ⚠️ !**  
 
@@ -30,7 +30,7 @@ Run the Build script
 - `yarn run build`
 - `npm run build`  
 
-Copy the [Js .env](src/.env) to `build/`  
+Copy the [Js .env](src/secrets/example.env) to `build/`  
 Run the Start script  
 
 Assuming everything is installed correctly, inserted correctly it should run.  
