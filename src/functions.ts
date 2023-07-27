@@ -20,6 +20,7 @@ export async function submitError(err: any, c: Client) {
 	const server		= c.guilds.cache.get(process.env.server as string);
 	const errorChannel	= server?.channels.cache.get(process.env.channel as string);
 	if (errorChannel?.type === ChannelType.GuildText) {
+		// ! Remove <@${process.env.author as string}> to remove ping from errors. ! //
 		return await errorChannel.send(`<@${process.env.author as string}>\n\`\`\`fix\n${err}\n\`\`\``);
 	} else {
 		console.log("Unable to get Error Channel.");
@@ -28,5 +29,5 @@ export async function submitError(err: any, c: Client) {
 }
 
 export async function createNovelRole(guild: Guild) {
-	
+
 }
