@@ -2,7 +2,7 @@ import { Routes, REST, Collection } from "discord.js";
 import * as fs from "fs";
 import * as path from "path";
 import { config } from "dotenv";
-config({ path: "./secrets/.env" });
+config({ path: `${__dirname}/secrets/.env` });
 
 const commands: Collection<unknown, any>[] = [];
 const commandsPath = path.join(__dirname, "commands");

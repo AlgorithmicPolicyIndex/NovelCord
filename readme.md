@@ -1,5 +1,6 @@
 # NovelCord
-Welcome to a random Discord bot that I had the idea of creating.
+Welcome to a random Discord bot that I had the idea of creating.  
+NovelCord is a Discord Bot meant to integrate NovelAi stories directly into your server.
 
 ## Requirements
 - [Python v3.11.2](https://www.python.org/downloads/)  
@@ -7,13 +8,22 @@ Welcome to a random Discord bot that I had the idea of creating.
 - [NodeJS v18.14.1](https://nodejs.org/en)
 	- Install packages using your preferred manager.
 
+**Disclaimer**:  
+The Database is a JSON DB. I will try to make it as minimal as possible, so if you want, you can use something such as MySQL, Mongo, and others.
+
 ## Current Plans
 - Getting it to work, firstly
-- Create commands and being work on python command handler
+- Create commands and begin work on python command handler
+- Create Role if server does not have a `NovelUser` named role
+- Finish up `createNovelRole` in [functions](/src/functions.ts)
+- Map out commands for help command, via the c.commands collection
+	- Might look into collections, and see if a third option can bee added into it, for a description, for less hard coded values.
+- Finish up [UsrAgmt](/src/commands/usragmt.ts) 
 
 ## Possible ideas
 - Upload custom stories to local or remote
 - Local vs Remote stories? ~~Not sure about the way context will be handled~~
+- Command use in DMs (Will still be sent through the server specified in JS .env and the channel config in JSONDB)
 - Soon to be more as I get closer to a actual useable product.
 
 ## Setup ( BOT COMMANDS DO NOT WORK )
@@ -25,13 +35,17 @@ Head to the [DDP](https://discord.com/developers/applications) to get your bot T
   If you know how to do this, feel free to do that.  
 ! ⚠️ ================================================ ⚠️ !**  
 
-Run the Build script  
-- `pnpm build`
-- `yarn run build`
-- `npm run build`  
+*using pnpm*  
+Scripts are as follows:  
+---
+`pnpm build`  
+Copy the [Js .env](src/secrets/example.env) to `build/secrets/`  
 
-Copy the [Js .env](src/secrets/example.env) to `build/`  
-Run the Start script  
+**(*To create commands, use `:create` However, you can also use `:delete`*)**  
+**(*`:guild:create` currently only updates to one server at a time*)**    
+`pnpm deploy:guild:create` **or** `pnpm deploy:global:create`  
+`pnpm start`
+
 
 Assuming everything is installed correctly, inserted correctly it should run.  
 Use `/help` when ready to start using the bot. *(I'll make a wiki at some point.)*
