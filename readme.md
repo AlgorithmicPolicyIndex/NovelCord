@@ -1,5 +1,6 @@
+# I HAVE NO AFFILIATION TO NOVELAI. ANY AND ALL PROBLEMS REGARDING NOVELAI OR THE PYTHON API MUST GO TO THE RESPECTIVE PEOPLE
+
 # NovelCord
-Welcome to a random Discord bot that I had the idea of creating.  
 NovelCord is a Discord Bot meant to integrate NovelAi stories directly into your server.
 
 ## Requirements
@@ -14,16 +15,28 @@ The Database is a JSON DB. I will try to make it as minimal as possible, so if y
 ## Current Plans
 - Getting it to work, firstly
 - Create commands and begin work on python command handler
-- Create Role if server does not have a `NovelUser` named role
-- Finish up `createNovelRole` in [functions](/src/functions.ts)
-- Map out commands for help command, via the c.commands collection
-	- Might look into collections, and see if a third option can bee added into it, for a description, for less hard coded values.
-- Finish up [UsrAgmt](/src/commands/usragmt.ts) 
+- Server Config Command
+- NovelAi story description interface, for easy of use and consistent descriptions.
+- NovelAi Discord Commands
+	- Call to Python scripts that interact with NovelAi
+	- Figure out the response from the python scripts and send back to discord.
+	- NovelAi Story description filters
+		- `{..., filters: ["SFW", "FANTASY"], ...}`
+	- I'm already eating out my brain thinking about this
+	- I'm going insane doing this project, but I'm enjoy it as well
+	- Christ, I need to sleep, but can't.
+- NovelAi User/Channel specific stories?
+	- I can use NovelAi's story description to hold a user id and/or channel id.
+		- `{"user": "1234567890", "channel": "1234567890"}`
+	- Useable, but I might do something more like
+		- `{"author": "1234", "users": ["5678", "9012"], ...}`
+		- "users" being people allowed by the author to select the story and interact with it too. Like multiplayer? Which would be channel specific, because it'll be easier to just have a non-ephemeral message for all the people in the story.
 
 ## Possible ideas
 - Upload custom stories to local or remote
 - Local vs Remote stories? ~~Not sure about the way context will be handled~~
 - Command use in DMs (Will still be sent through the server specified in JS .env and the channel config in JSONDB)
+- Image generation (This is a heavy doubt, but it's a thought to have)
 - Soon to be more as I get closer to a actual useable product.
 
 ## Setup ( BOT COMMANDS DO NOT WORK )

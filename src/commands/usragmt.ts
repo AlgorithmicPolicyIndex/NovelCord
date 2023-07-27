@@ -1,12 +1,12 @@
-import { ActionRowBuilder, ButtonBuilder, ButtonStyle, CacheType, ChatInputCommandInteraction, ComponentType, EmbedBuilder, SlashCommandBuilder } from "discord.js";
+import { ActionRowBuilder, ButtonBuilder, ButtonStyle, CacheType, Client, ChatInputCommandInteraction, ComponentType, EmbedBuilder, GuildMember, Role, SlashCommandBuilder } from "discord.js";
 import { Agreement } from "../database/usragmt";
+import { submitError } from "../functions";
 
 module.exports = {
 	data: new SlashCommandBuilder()
 		.setName("user-agreement")
 		.setDescription("Agree to the NovelCord warning."),
-	async execute(i: ChatInputCommandInteraction<CacheType>) {
-
+	async execute(i: ChatInputCommandInteraction<CacheType>, c: Client) {
 		const embed = new EmbedBuilder({
 			title: "NovelCord Agreement",
 			description: "By selecting Agree, you agree to:",
@@ -38,15 +38,17 @@ module.exports = {
 			ephemeral: true, fetchReply: true
 		});
 
-		const collector = msg.createMessageComponentCollector({ componentType: ComponentType.Button, time: 1000 * 10});
+		const collector = msg.createMessageComponentCollector({ componentType: ComponentType.Button, time: 1000 * 30});
 		collector.on("collect", async ic => {
 			if (ic.customId == "agree") {
-				/** 
-				 * TODO: Make check for user in DB, but dont have role.
-				 ** (^) in case of user rejoining server
-				 * TODO: Add role to user before stopping collector.
-				*/
 				await Agreement(ic.user.id).then(async () => {
+					const userInGuild = i.guild?.members.cache.get(i.user.id) as GuildMember;
+					const roleInGuild = i.guild?.roles.cache.find(r => r.name === "NovelUser") as Role;
+
+					await userInGuild.roles.add(roleInGuild).catch((err: string) => {
+						submitError(err, c);
+						return i.editReply("There was an error adding your role. Please wait or notify the Bot Hoster");
+					});
 					await i.editReply({
 						embeds: [
 							new EmbedBuilder({

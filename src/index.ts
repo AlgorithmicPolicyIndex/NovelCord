@@ -1,7 +1,6 @@
-import { ActivityType, Client, Events, GatewayIntentBits } from "discord.js";
-import { defineCommands, submitError } from "./functions";
+import { ActivityType, Client, Events, GatewayIntentBits, PermissionFlagsBits } from "discord.js";
+import { compareDBToRoles, defineCommands, submitError } from "./functions";
 import { config } from "dotenv";
-import { agreementExists } from "./database/usragmt";
 config({ path: `${__dirname}/secrets/.env` });
 
 const client = new Client({
@@ -28,21 +27,27 @@ client.on(Events.InteractionCreate, async interaction => {
 	const command = interaction.client.commands.get(interaction.commandName);
 	if (!command) return;
 
+	// * Create Role; if it doesn't exist.
 	const guild = client.guilds?.cache.get(interaction.guild?.id as string);
 	const role = guild?.roles.cache.find(r => r.name == "NovelUser");
 	if (!role) {
 		guild?.roles.create({
 			name: "NovelUser",
-			color: // MAKE THIS DUMB BRAIN
+			color: "#FFEFBB",
+			permissions: [PermissionFlagsBits.SendMessages]
+		}).catch((err) => {
+			submitError(err, client);
+			return interaction.reply("There was an error creating the NovelUser role. Please wait or notify the bot hoster");
 		});
 	}
+	// * If user is in JSON DB but doesn't have the role, add before running command.
+	await compareDBToRoles(interaction, client);
 
-	try {
-		await command.execute(interaction, client);
-	} catch (err) {
+	await command.execute(interaction, client).catch(async (err: string) => {
 		console.error(err);
-		return submitError(err, client).then(()=>{return;});
-	}
+		await submitError(err, client);
+		return;
+	});
 });
 
 client.login(process.env.Token);
