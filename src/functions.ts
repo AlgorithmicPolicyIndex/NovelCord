@@ -1,23 +1,23 @@
-import { Client, Collection, ChannelType, ChatInputCommandInteraction, CacheType, GuildMember, Role } from "discord.js";
+import { Client, Collection, ChannelType, ChatInputCommandInteraction, CacheType, GuildMember, Role, ActionRowBuilder, ButtonBuilder, ButtonStyle } from "discord.js";
 import path = require("path");
 import * as fs from "fs";
 import { config } from "dotenv";
 import { agreementExists } from "./database/usragmt";
-config({path: `$${__dirname}/secrets/.env` });
+config({ path: `$${__dirname}/secrets/.env` });
 
-export function defineCommands(c: Client) {
+export async function defineCommands(c: Client) {
 	c.commands = new Collection();
 	const cmdPath = path.join(__dirname, "commands");
 	const cmdFiles = fs.readdirSync(cmdPath).filter(file => file.endsWith(".js"));
 
 	for (const file of cmdFiles) {
 		const filePath = path.join(cmdPath, file);
-		const command = require(filePath);
+		const command = await import(filePath);
 		c.commands.set(command.data.name, command);
 	}
 }
 
-export async function submitError(err: any, c: Client) {
+export async function submitError(err: string, c: Client) {
 	// TODO: Make optional?
 	const server = c.guilds.cache.get(process.env.server as string);
 	const errorChannel = server?.channels.cache.get(process.env.channel as string);
@@ -28,6 +28,12 @@ export async function submitError(err: any, c: Client) {
 		console.log("Unable to get Error Channel.");
 		return console.error(err);
 	}
+}
+
+export function createButton(id: string, label: string, style: ButtonStyle) {
+	return new ActionRowBuilder<ButtonBuilder>().addComponents(
+		new ButtonBuilder().setCustomId(id).setLabel(label).setStyle(style)
+	);
 }
 
 // ! I know I can just use dotenv in the command folder, but __dirname will not bring it to src, so I'll have to look into it.
@@ -47,7 +53,7 @@ export async function compareDBToRoles(i: ChatInputCommandInteraction<CacheType>
 		const roleInGuild = i.guild?.roles.cache.find(r => r.name === "NovelUser");
 		await userInGuild.roles.add(roleInGuild as Role).catch(async (err) => {
 			await submitError(err, c);
-			return i.editReply({content: "There was an error"});
+			return i.editReply({ content: "There was an error" });
 		});
 	}
 }

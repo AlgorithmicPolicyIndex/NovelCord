@@ -1,6 +1,6 @@
-import { ActionRowBuilder, ButtonBuilder, ButtonStyle, CacheType, Client, ChatInputCommandInteraction, ComponentType, EmbedBuilder, GuildMember, Role, SlashCommandBuilder } from "discord.js";
+import { ButtonStyle, CacheType, Client, ChatInputCommandInteraction, ComponentType, EmbedBuilder, GuildMember, Role, SlashCommandBuilder } from "discord.js";
 import { Agreement } from "../database/usragmt";
-import { submitError } from "../functions";
+import { submitError, createButton } from "../functions";
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -29,14 +29,8 @@ module.exports = {
 				name: "NovelAi Itself",
 				value: "This bot is not affiliated with NovelAi. As such, anything can happen. The person hosting this bot, is using their personal account or a dedicated account for the bot. Their rules will be further set, if any."
 			}],
-			author: {name: "KayleePhoto"}
+			author: { name: "KayleePhoto" }
 		});
-
-		const createButton: any = (id: string, label: string, style: ButtonStyle) => {
-			return new ActionRowBuilder().addComponents(
-				new ButtonBuilder().setCustomId(id).setLabel(label).setStyle(style)
-			);
-		};
 
 		const msg = await i.reply({
 			embeds: [embed],

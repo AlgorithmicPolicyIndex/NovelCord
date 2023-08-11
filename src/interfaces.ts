@@ -1,4 +1,4 @@
-import { TextChannel } from "discord.js";
+import { ChatInputCommandInteraction, Client, SlashCommandBuilder, TextChannel } from "discord.js";
 
 export interface ServerSettings {
 	NovelChannel: TextChannel, // Channel used to restrain NovelAi user interactions. Allows easier implementation of multiplayer stories
@@ -11,4 +11,15 @@ export interface NovelDescription {
 
 export interface NovelFilters {
 	// TODO: This
+}
+
+export interface CommandCollection {
+	name: string,
+	command: {
+		data: SlashCommandBuilder,
+		execute(
+			i: ChatInputCommandInteraction,
+			c: Client
+		): Promise<void>
+	}
 }

@@ -1,4 +1,4 @@
-import { PermissionFlagsBits, ChatInputCommandInteraction, Client, SlashCommandBuilder, CacheType } from "discord.js";
+import { CacheType, ChannelType, ChatInputCommandInteraction, Client, PermissionFlagsBits, SlashCommandBuilder } from "discord.js";
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -13,6 +13,15 @@ module.exports = {
 		.setDMPermission(false),
 	async execute(i: ChatInputCommandInteraction<CacheType>, c: Client) {
 		// Don't worry about mod channel, it is stored inside the Bot's .env file as channel
-		
+		const NovelChannel = i.options.getChannel("novel-channel");
+		// Add more settings, as it comes
+
+		if (NovelChannel?.type == ChannelType.GuildText) {
+			return i.reply({
+				content: "This selection is not a text channel. Please retry with a Text Channel.",
+				ephemeral: true
+			});
+		}
+
 	}
 };

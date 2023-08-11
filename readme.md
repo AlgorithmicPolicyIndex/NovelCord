@@ -24,7 +24,7 @@ The Database is a JSON DB. I will try to make it as minimal as possible, so if y
 		- once user selects a story, allow them to change, who can see it, interact, change settings, etc
 		- Define inside JsonDB? `{"user": "story id"}`?
 	- NovelAi Story description filters
-		- tags.txt file for owner to set different tag names? or a text field for the user to set their own custom tags? ( 2nd is probably easier. )
+		- tags.txt file for owner to set different tag names? or a text field for the user to set their own custom tags? ( 2nd is probably easier and more practical. )
 		- `{..., filters: ["SFW", "FANTASY"], ...}`
 - NovelAi User/Channel specific stories?
 	- I can use NovelAi's story description to hold a user id and/or channel id.
