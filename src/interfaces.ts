@@ -1,7 +1,6 @@
-import { TextChannel } from "discord.js";
-
 export interface ServerSettings {
-	NovelChannel: TextChannel, // Channel used to restrain NovelAi user interactions. Allows easier implementation of multiplayer stories
+	NovelChannel: string, // Channel used to restrain NovelAi user interactions. Allows easier implementation of multiplayer stories
+	ModChannel: string // Channel used for local server moderation
 }
 
 export interface NovelDescription {

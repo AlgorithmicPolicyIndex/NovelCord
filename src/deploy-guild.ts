@@ -63,7 +63,6 @@ async function createCommands(cmds: any[], serverId: string)
 			Routes.applicationGuildCommands(process.env.client_id as string, serverId),
 			{ body: cmds }
 		);
-		// TODO: FIND OUT WHAT THE FUCK DATA RETURNS. I NEVER LOOKED INTO THIS.
 		console.log(`Successfully reloaded ${data.length} application (/) commands.`);
 	}
 	catch (error)

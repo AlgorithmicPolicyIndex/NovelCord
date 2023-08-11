@@ -13,6 +13,7 @@ module.exports = {
 
 		if (userInGuild.roles.cache.find((r) => r.name === "NovelUser")) {
 			i.reply("You already have the NovelUser role.");
+			await Agreement(i.user.id as string, i.guild?.id as string);
 			return;
 		}
 
