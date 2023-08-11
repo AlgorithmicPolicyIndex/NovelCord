@@ -12,7 +12,8 @@ module.exports = {
 		.setDefaultMemberPermissions(PermissionFlagsBits.Administrator)
 		.setDMPermission(false),
 	async execute(i: ChatInputCommandInteraction<CacheType>, c: Client) {
-		// Don't worry about mod channel, it is stored inside the Bot's .env file as channel
+		// Don't worry about the ERROR CHANNEL, as it is already in the .env
+		// TODO: MAKE MOD CHANNEL YOU DUNCE, YOU NEED THAT DUMMY. EDIT USRAGMT.TS FOR THIS.
 		const NovelChannel = i.options.getChannel("novel-channel");
 		// Add more settings, as it comes
 

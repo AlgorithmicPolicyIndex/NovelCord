@@ -53,7 +53,8 @@ module.exports = {
 						embeds: [
 							new EmbedBuilder({
 								title: "Thank you for agreeing to NovelCord Agreement.",
-								description: "You should be able to see the NovelCord Commands now, with the dedicated role \"NovelUser\"."
+								description: "You should be able to see the NovelCord Commands now, with the dedicated role \"NovelUser\".",
+								author: { name: "Kaylee" }
 							})
 						],
 						components: []
@@ -65,7 +66,8 @@ module.exports = {
 					embeds: [
 						new EmbedBuilder({
 							title: "Thank you for taking the time to read this.",
-							description: "If you ever want to change your mind, you can run this command again."
+							description: "If you ever want to change your mind, you can run this command again.",
+							author: { name: "Kaylee" }
 						})
 					],
 					components: []

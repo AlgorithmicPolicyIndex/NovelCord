@@ -12,10 +12,15 @@ NovelCord is a Discord Bot meant to integrate NovelAi stories directly into your
 **Disclaimer**:  
 The Database is a JSON DB. I will try to make it as minimal as possible, so if you want, you can use something such as MySQL, Mongo, and others.
 
-## Current Plans
-- Getting it to work, firstly
+## Current Plans ( I should stop writing NovelAi specific things, as I can't do anything with it, until the bot, frontend?, is done. )
 - Create commands and begin work on python command handler
 - Server Config Command
+	- Mod Channel
+		- Edit SubmitError to have an optional arg called "serverChannel", so something as `usragmt.ts` sends to the bot hoster, as well as the server admins if the bot is being invited to other servers. so admins can insert the role to users while the hoster looks into the issue.
+	- Novel Channel
+		- The channel to restrict the NovelAi stories to. ( Based on Multiplayer context. )
+			- All personal stories are ephemeral, will allow use in other channels.
+			- Multiplayer stories are not Ephemeral and are restricted to the channel the author of the story is in ( Specifically, locked to the channel allowed by admins and what server the author is in. )
 - NovelAi story description interface, for easy of use and consistent descriptions.
 - NovelAi Discord Commands
 	- Call to Python scripts that interact with NovelAi
