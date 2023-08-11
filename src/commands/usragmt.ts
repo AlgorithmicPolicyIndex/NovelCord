@@ -5,8 +5,17 @@ import { submitError } from "../functions";
 module.exports = {
 	data: new SlashCommandBuilder()
 		.setName("user-agreement")
-		.setDescription("Agree to the NovelCord warning."),
+		.setDescription("Agree to the NovelCord warning.")
+		.setDMPermission(false),
 	async execute(i: ChatInputCommandInteraction<CacheType>, c: Client) {
+		const userInGuild = i.guild?.members.cache.get(i.user.id) as GuildMember;
+		const roleInGuild = i.guild?.roles.cache.find(r => r.name === "NovelUser") as Role;
+
+		if (userInGuild.roles.cache.find((r) => r.name === "NovelUser")) {
+			i.reply("You already have the NovelUser role.");
+			return;
+		}
+
 		const embed = new EmbedBuilder({
 			title: "NovelCord Agreement",
 			description: "By selecting Agree, you agree to:",
@@ -38,13 +47,10 @@ module.exports = {
 			ephemeral: true, fetchReply: true
 		});
 
-		const collector = msg.createMessageComponentCollector({ componentType: ComponentType.Button, time: 1000 * 30});
+		const collector = msg.createMessageComponentCollector({ componentType: ComponentType.Button, time: 1000 * 30 });
 		collector.on("collect", async ic => {
 			if (ic.customId == "agree") {
-				await Agreement(ic.user.id).then(async () => {
-					const userInGuild = i.guild?.members.cache.get(i.user.id) as GuildMember;
-					const roleInGuild = i.guild?.roles.cache.find(r => r.name === "NovelUser") as Role;
-
+				await Agreement(ic.user.id, i.guild?.id as string).then(async () => {
 					await userInGuild.roles.add(roleInGuild).catch((err: string) => {
 						submitError(err, c);
 						return i.editReply("There was an error adding your role. Please wait or notify the Bot Hoster");

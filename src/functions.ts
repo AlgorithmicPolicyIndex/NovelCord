@@ -30,6 +30,12 @@ export async function submitError(err: any, c: Client) {
 	}
 }
 
+// ! I know I can just use dotenv in the command folder, but __dirname will not bring it to src, so I'll have to look into it.
+// ! This will be removed.
+export function GetAuthorFromEnv() {
+	return process.env.author as string;
+}
+
 // TODO: Function to send to specified channel inside server settings DB (Moderation)
 
 // TODO: Function for Index.ts that checks if user is in JSON DB then compares to their roles, if they do not have the role, it auto adds it.
@@ -37,7 +43,7 @@ export async function submitError(err: any, c: Client) {
 export async function compareDBToRoles(i: ChatInputCommandInteraction<CacheType>, c: Client) {
 	const userInGuild = i.guild?.members.cache.get(i.user.id) as GuildMember;
 	const novelRole = userInGuild.roles.cache.find(r => r.name === "NovelUser");
-	if (await agreementExists(i.user.id) && !novelRole) {
+	if (await agreementExists(i.user.id, i.guild?.id as string) && !novelRole) {
 		const roleInGuild = i.guild?.roles.cache.find(r => r.name === "NovelUser");
 		await userInGuild.roles.add(roleInGuild as Role).catch(async (err) => {
 			await submitError(err, c);

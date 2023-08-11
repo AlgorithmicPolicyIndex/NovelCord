@@ -20,11 +20,12 @@ The Database is a JSON DB. I will try to make it as minimal as possible, so if y
 - NovelAi Discord Commands
 	- Call to Python scripts that interact with NovelAi
 	- Figure out the response from the python scripts and send back to discord.
+	- Story specific commands
+		- once user selects a story, allow them to change, who can see it, interact, change settings, etc
+		- Define inside JsonDB? `{"user": "story id"}`?
 	- NovelAi Story description filters
+		- tags.txt file for owner to set different tag names? or a text field for the user to set their own custom tags? ( 2nd is probably easier. )
 		- `{..., filters: ["SFW", "FANTASY"], ...}`
-	- I'm already eating out my brain thinking about this
-	- I'm going insane doing this project, but I'm enjoy it as well
-	- Christ, I need to sleep, but can't.
 - NovelAi User/Channel specific stories?
 	- I can use NovelAi's story description to hold a user id and/or channel id.
 		- `{"user": "1234567890", "channel": "1234567890"}`
@@ -39,7 +40,7 @@ The Database is a JSON DB. I will try to make it as minimal as possible, so if y
 - Image generation (This is a heavy doubt, but it's a thought to have)
 - Soon to be more as I get closer to a actual useable product.
 
-## Setup ( BOT COMMANDS DO NOT WORK )
+## Setup ( BOT COMMANDS DO NOT WORK ) ( THIS SECTION WILL CHANGE OVER TIME, OR BE UPDATED ALL AT ONCE AT THE END )
 Using your [NovelAi](https://novelai.net) account, insert your username and password inside the **[.env](python/example.env)**  
 Head to the [DDP](https://discord.com/developers/applications) to get your bot Token, then paste it into the **[.env](src/secrets/example.env)**
 
@@ -59,9 +60,7 @@ Copy the [Js .env](src/secrets/example.env) to `build/secrets/`
 `pnpm deploy:guild:create` **or** `pnpm deploy:global:create`  
 `pnpm start`
 
-
-Assuming everything is installed correctly, inserted correctly it should run.  
-Use `/help` when ready to start using the bot. *(I'll make a wiki at some point.)*
+Assuming everything is installed correctly, inserted correctly it should run.
 
 **! ⚠️ ================================================ ⚠️ !  
   One thing to keep in mind, it may take a while to get a response.  
