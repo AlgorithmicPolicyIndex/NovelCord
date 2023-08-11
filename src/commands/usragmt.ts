@@ -16,12 +16,14 @@ module.exports = {
 			return;
 		}
 
+		// ? Feel free to add another embed for rules, if you want to specify that directly. Or create a command, up to you.
+		// ? If you create a new embed, make sure to add it to the msg var in `embeds: [embed, your_embed]`
 		const embed = new EmbedBuilder({
 			title: "NovelCord Agreement",
 			description: "By selecting Agree, you agree to:",
 			fields: [{
 				name: "Moderation",
-				value: "All interactions with the bot, will be viewed by the Moderators of the server"
+				value: "All interactions with the bot, will be viewed by the Moderators of the server and the owner of this bot instance.\nThis means, if you are banned by the owner, you cannot use this instance of the bot, regardless of the server you are in. `ie. Global vs. Local banning`"
 			},{
 				name: "Content",
 				value: "That the NovelAi will generate content that may not be suitable for you or others."

@@ -13,6 +13,7 @@ NovelCord is a Discord Bot meant to integrate NovelAi stories directly into your
 The Database is a JSON DB. I will try to make it as minimal as possible, so if you want, you can use something such as MySQL, Mongo, and others.
 
 ## Current Plans ( I should stop writing NovelAi specific things, as I can't do anything with it, until the bot, frontend?, is done. )
+- MOVE ALL THIS CRAP TO A TRELLO OR SOMETHING FOR CLARITY. GOD FORBID, I'M ANNOYED AT CLUTTER EVEN THOUGH I DID IT WILLINGLY.
 - Create commands and begin work on python command handler
 - Server Config Command
 	- Mod Channel
@@ -29,7 +30,7 @@ The Database is a JSON DB. I will try to make it as minimal as possible, so if y
 		- once user selects a story, allow them to change, who can see it, interact, change settings, etc
 		- Define inside JsonDB? `{"user": "story id"}`?
 	- NovelAi Story description filters
-		- tags.txt file for owner to set different tag names? or a text field for the user to set their own custom tags? ( 2nd is probably easier and more practical. )
+		- Custom tags set by author
 		- `{..., filters: ["SFW", "FANTASY"], ...}`
 - NovelAi User/Channel specific stories?
 	- I can use NovelAi's story description to hold a user id and/or channel id.

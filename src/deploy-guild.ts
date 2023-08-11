@@ -1,25 +1,23 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+// ! ALLOWING ANY ONLY FOR THIS FILE. I'M TOO LAZY TO REWRITE IT.
 import { Routes, REST } from "discord.js";
 import * as fs from "fs";
 import * as path from "path";
 import { config } from "dotenv";
-import { CommandCollection } from "./interfaces";
 config({ path: `${__dirname}/secrets/.env` });
 
-const commands: CommandCollection[] = [];
+const commands: any[] = [];
 const commandsPath = path.join(__dirname, "commands");
 const commandFiles = fs
 	.readdirSync(commandsPath)
 	.filter((file) => file.endsWith(".js"));
 
-// ! I dont want to do it like this, but for now, and it not being a main use file, it should be fine for now.
-(async () => {
-	for (const file of commandFiles) {
-		const filePath = path.join(commandsPath, file);
-		// The problem line
-		const command = await import(filePath);
-		commands.push(command.data.toJSON());
-	}
-});
+for (const file of commandFiles) {
+	const filePath = path.join(commandsPath, file);
+	// eslint-disable-next-line @typescript-eslint/no-var-requires
+	const command = require(filePath);
+	commands.push(command.data.toJSON());
+}
 
 const rest = new REST({ version: "10" }).setToken(process.env.Token as string);
 const Servers = [
@@ -56,12 +54,12 @@ case "delete":
 	break;
 }
 
-async function createCommands(cmds: CommandCollection[], serverId: string)
+async function createCommands(cmds: any[], serverId: string)
 {
 	try
 	{
 		console.log(`Started refreshing ${cmds.length} application (/) commands.`);
-		const data = await rest.put(
+		const data: any = await rest.put(
 			Routes.applicationGuildCommands(process.env.client_id as string, serverId),
 			{ body: cmds }
 		);
@@ -74,7 +72,7 @@ async function createCommands(cmds: CommandCollection[], serverId: string)
 	}
 }
 
-async function deleteCommands(cmds: CommandCollection[], server: string)
+async function deleteCommands(cmds: any[], server: string)
 {
 	try
 	{
