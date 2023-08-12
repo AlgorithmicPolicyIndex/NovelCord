@@ -13,6 +13,10 @@ NovelCord is a Discord Bot meant to integrate NovelAi stories directly into your
 The Database is a JSON DB. I will try to make it as minimal as possible, so if you want, you can use something such as MySQL, Mongo, and others.
 
 ## Current Plans Moved To [Trello](https://trello.com/b/0Vcb2g1q)
+#### Yell at me, I hate that I'm doing it in python like this, but it works. I dont know of any Javascript libraries for NovelAi. I'm still kind of tempted to create one myself, however, I have no knowledge of really how to use github.
+![Code](code.png)
+I will be changing the way `story.id` is returned, as there are multiple IDs  
+![Test](test.png)
 
 ## Setup ( NOT BEING UPDATED AT THIS TIME )
 Using your [NovelAi](https://novelai.net) account, insert your username and password inside the **[.env](python/example.env)**  

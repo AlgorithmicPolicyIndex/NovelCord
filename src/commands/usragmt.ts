@@ -1,4 +1,4 @@
-import { ButtonStyle, CacheType, Client, ChatInputCommandInteraction, ComponentType, EmbedBuilder, GuildMember, Role, SlashCommandBuilder } from "discord.js";
+import { ButtonStyle, CacheType, Client, ChatInputCommandInteraction, ComponentType, EmbedBuilder, GuildMember, Role, SlashCommandBuilder, ActionRowBuilder, ButtonBuilder } from "discord.js";
 import { Agreement } from "../database/usragmt";
 import { submitError, createButton } from "../functions";
 
@@ -38,8 +38,10 @@ module.exports = {
 		const msg = await i.reply({
 			embeds: [embed],
 			components: [
-				createButton("agree", "Agree", ButtonStyle.Success),
-				createButton("disagree", "Disagree", ButtonStyle.Danger)
+				new ActionRowBuilder<ButtonBuilder>().addComponents(
+					createButton("agree", "Agree", ButtonStyle.Success),
+					createButton("disagree", "Disagree", ButtonStyle.Danger)
+				)
 			],
 			ephemeral: true, fetchReply: true
 		});

@@ -1,5 +1,8 @@
-import { CacheType, SlashCommandBuilder, ChatInputCommandInteraction, Client } from "discord.js";
+/* eslint-disable no-case-declarations */
+// ! I DONT LIKE THIS, BUT I'M NOT REALLY WANTING TO DO OPTION HANDLING OUTSIDE THE SWITCH BECAUSE MOST OPTIONS WILL NOT BE USED
+import { CacheType, SlashCommandBuilder, ChatInputCommandInteraction, Client, EmbedBuilder } from "discord.js";
 import { Options, PythonShell } from "python-shell";
+import { submitError } from "../functions";
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -19,14 +22,31 @@ module.exports = {
 		// ! I refer to print as my return value. When I call `return print` it is expected to close and return straight to Typescript with no other results.
 		const options: Options = {
 			mode: "text",
-			// TODO: Exit out of commands and src, to enter python
-			scriptPath: "python",
-			args: ["value1", "value2", "value3"]
+			scriptPath: "python"
 		};
 
 		switch (i.options.getSubcommand()) {
 		case "list":
-			PythonShell.run("handler.py", options);
+			const stories: {name: string, id: string}[] = [];
+			options.args = ["list"];
+			await PythonShell.run("handler.py", options).then(results => {
+				for (const story of results) {
+					stories.push(JSON.parse(story));
+				}
+			}).catch(e => {
+				i.reply("There was an error");
+				return submitError(e, c);
+			});
+
+			// TODO: Make collector to handle pages and selection of stories
+			// options.args = ["list", (offset for pages, by 8)]
+			i.reply({ embeds: [new EmbedBuilder({
+				title: "Stories",
+				description: "Filters: (add in code filters functionality)", 
+				fields: stories.map(story => {
+					return { name: story.name, value: story.id, inline: true };
+				})
+			})], ephemeral: true });
 			return;
 		}
 	}

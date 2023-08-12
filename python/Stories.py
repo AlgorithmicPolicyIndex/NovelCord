@@ -13,7 +13,7 @@ async def getAllStories():
 		stories = await api.high_level.download_user_stories()
 		return stories
 
-async def getAllStoryData():
+async def getAllStoryData(start):
 	async with API() as api_handler:
 		api = api_handler.api
 		key = api_handler.encryption_key
@@ -23,8 +23,9 @@ async def getAllStoryData():
 		decrypt_user_data(stories, keystore)
 		storyArray = []
 
-		for story in stories:
-			storyArray.append(story["data"])
+		# Start from 
+		for story in range(start, start + 8):
+			storyArray.append(stories[story]["data"])
 		return storyArray
 
 async def getAllStoriesWithContent():

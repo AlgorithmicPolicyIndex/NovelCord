@@ -1,4 +1,4 @@
-import { Client, Collection, ChannelType, ChatInputCommandInteraction, CacheType, GuildMember, Role, ActionRowBuilder, ButtonBuilder, ButtonStyle } from "discord.js";
+import { Client, Collection, ChannelType, ChatInputCommandInteraction, CacheType, GuildMember, Role, ButtonBuilder, ButtonStyle } from "discord.js";
 import path = require("path");
 import * as fs from "fs";
 import { config } from "dotenv";
@@ -31,9 +31,7 @@ export async function submitError(err: string, c: Client) {
 }
 
 export function createButton(id: string, label: string, style: ButtonStyle) {
-	return new ActionRowBuilder<ButtonBuilder>().addComponents(
-		new ButtonBuilder().setCustomId(id).setLabel(label).setStyle(style)
-	);
+	return new ButtonBuilder().setCustomId(id).setLabel(label).setStyle(style);
 }
 
 // TODO: Function to send to specified channel inside server settings DB (Moderation) (server and global)

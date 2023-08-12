@@ -1,4 +1,4 @@
-import { APIEmbedField, ButtonStyle, CacheType, ChannelType, ChatInputCommandInteraction, Client, ComponentType, EmbedBuilder, PermissionFlagsBits, SlashCommandBuilder } from "discord.js";
+import { APIEmbedField, ActionRowBuilder, ButtonBuilder, ButtonStyle, CacheType, ChannelType, ChatInputCommandInteraction, Client, ComponentType, EmbedBuilder, PermissionFlagsBits, SlashCommandBuilder } from "discord.js";
 import { getSettings, settings, settingsExist } from "../database/server";
 import { createButton, submitError } from "../functions";
 
@@ -86,8 +86,10 @@ module.exports = {
 				description: "Updating Settings\n\n**Are you sure?**",
 			})],
 			components: [
-				createButton("agree", "Yes", ButtonStyle.Success),
-				createButton("disagree", "No", ButtonStyle.Danger)
+				new ActionRowBuilder<ButtonBuilder>().addComponents(
+					createButton("agree", "Yes", ButtonStyle.Success),
+					createButton("disagree", "No", ButtonStyle.Danger)
+				)
 			], ephemeral: true, fetchReply: true
 		});
 		// TODO: make confirmation collector
