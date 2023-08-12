@@ -12,41 +12,9 @@ NovelCord is a Discord Bot meant to integrate NovelAi stories directly into your
 **Disclaimer**:  
 The Database is a JSON DB. I will try to make it as minimal as possible, so if you want, you can use something such as MySQL, Mongo, and others.
 
-## Current Plans ( I should stop writing NovelAi specific things, as I can't do anything with it, until the bot, frontend?, is done. )
-- MOVE ALL THIS CRAP TO A TRELLO OR SOMETHING FOR CLARITY. GOD FORBID, I'M ANNOYED AT CLUTTER EVEN THOUGH I DID IT WILLINGLY.
-- Create commands and begin work on python command handler
-- Server Config Command
-	- Mod Channel
-		- Edit SubmitError to have an optional arg called "serverChannel", so something as `usragmt.ts` sends to the bot hoster, as well as the server admins if the bot is being invited to other servers. so admins can insert the role to users while the hoster looks into the issue.
-	- Novel Channel
-		- The channel to restrict the NovelAi stories to. ( Based on Multiplayer context. )
-			- All personal stories are ephemeral, will allow use in other channels.
-			- Multiplayer stories are not Ephemeral and are restricted to the channel the author of the story is in ( Specifically, locked to the channel allowed by admins and what server the author is in. )
-- NovelAi story description interface, for easy of use and consistent descriptions.
-- NovelAi Discord Commands
-	- Call to Python scripts that interact with NovelAi
-	- Figure out the response from the python scripts and send back to discord.
-	- Story specific commands
-		- once user selects a story, allow them to change, who can see it, interact, change settings, etc
-		- Define inside JsonDB? `{"user": "story id"}`?
-	- NovelAi Story description filters
-		- Custom tags set by author
-		- `{..., filters: ["SFW", "FANTASY"], ...}`
-- NovelAi User/Channel specific stories?
-	- I can use NovelAi's story description to hold a user id and/or channel id.
-		- `{"user": "1234567890", "channel": "1234567890"}`
-	- Useable, but I might do something more like
-		- `{"author": "1234", "users": ["5678", "9012"], ...}`
-		- "users" being people allowed by the author to select the story and interact with it too. Like multiplayer? Which would be channel specific, because it'll be easier to just have a non-ephemeral message for all the people in the story.
+## Current Plans Moved To [Trello](https://trello.com/b/0Vcb2g1q)
 
-## Possible ideas
-- Upload custom stories to local or remote
-- Local vs Remote stories? ~~Not sure about the way context will be handled~~
-- Command use in DMs (Will still be sent through the server specified in JS .env and the channel config in JSONDB)
-- Image generation (This is a heavy doubt, but it's a thought to have)
-- Soon to be more as I get closer to a actual useable product.
-
-## Setup ( BOT COMMANDS DO NOT WORK ) ( THIS SECTION WILL CHANGE OVER TIME, OR BE UPDATED ALL AT ONCE AT THE END )
+## Setup ( NOT BEING UPDATED AT THIS TIME )
 Using your [NovelAi](https://novelai.net) account, insert your username and password inside the **[.env](python/example.env)**  
 Head to the [DDP](https://discord.com/developers/applications) to get your bot Token, then paste it into the **[.env](src/secrets/example.env)**
 
@@ -59,14 +27,16 @@ Head to the [DDP](https://discord.com/developers/applications) to get your bot T
 Scripts are as follows:  
 ---
 `pnpm build`  
-Copy the [Js .env](src/secrets/example.env) to `build/secrets/`  
+Copy the [Js .env](src/secrets/example.env) to `build/secrets/` as `.env`  
 
 **(*To create commands, use `:create` However, you can also use `:delete`*)**  
-**(*`:guild:create` currently only updates to one server at a time*)**    
+**(*`:guild` currently only updates to one server at a time*)**    
 `pnpm deploy:guild:create` **or** `pnpm deploy:global:create`  
 `pnpm start`
 
 Assuming everything is installed correctly, inserted correctly it should run.
+
+**If the `.env` is setup inside of build, you can run `pnpm test` to quick start it with one command. However, as the script implies, it's mainly used to test the bot, as it Builds and deploys commands as well.**
 
 **! ⚠️ ================================================ ⚠️ !  
   One thing to keep in mind, it may take a while to get a response.  
