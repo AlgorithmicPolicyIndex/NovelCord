@@ -1,6 +1,6 @@
 import sys
 import asyncio
-from Stories import getAllStoriesWithContent, getAllStoryData
+from Stories import getAllStories, getAllStoryData
 from boilerplate import dumps
 from base64 import b64decode
 
@@ -23,6 +23,7 @@ async def handler():
 			# ! Another note, is before "dataposition..." it is the current context of what I actually have, not the selective undo.
 			# * print(b64decode(stories[0]["content"]["data"]["document"]))
 
+			print(len(await getAllStories()))
 			for story in allStories:
 				print('{"name": "%s", "id": "%s"}' % (story["title"], story["id"]))
 

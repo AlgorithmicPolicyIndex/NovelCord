@@ -23,8 +23,7 @@ async def getAllStoryData(start):
 		decrypt_user_data(stories, keystore)
 		storyArray = []
 
-		# Start from 
-		for story in range(start, start + 8):
+		for story in range(start, start + 6):
 			storyArray.append(stories[story]["data"])
 		return storyArray
 
