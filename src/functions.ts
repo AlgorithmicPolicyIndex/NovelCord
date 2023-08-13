@@ -17,11 +17,12 @@ export async function defineCommands(c: Client) {
 	}
 }
 
-export async function submitError(err: string, c: Client) {
+export async function submitError(err: string, c: Client, cmd?: string) {
 	// TODO: Make optional?
 	const server = c.guilds.cache.get(process.env.server as string);
 	const errorChannel = server?.channels.cache.get(process.env.channel as string);
 	if (errorChannel?.type === ChannelType.GuildText) {
+		if (cmd) err = `**${cmd}**\n${err}`;
 		// ! Remove <@${process.env.author as string}> to remove ping from errors. ! //
 		return await errorChannel.send(`<@${process.env.author as string}>\n\`\`\`fix\n${err}\n\`\`\``);
 	} else {

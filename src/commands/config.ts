@@ -56,7 +56,7 @@ module.exports = {
 				});
 			}).catch((err: string) => {
 				i.reply("There was an error creating the new settings entry");
-				return submitError(err, c);
+				return submitError(err, c, "Config.ts; Line 35; 'if (!settingsExist..)':");
 			});
 		}
 		const settingsData = await getSettings(i.guild?.id as string);
@@ -122,7 +122,7 @@ module.exports = {
 					});
 					return collector.stop();
 				}).catch((err: string) => {
-					return submitError(err, c);
+					return submitError(err, c, "Config.ts; Line 107; 'await settings(...)':");
 				});
 			} else if (ic.customId == "disagree") {
 				i.editReply({

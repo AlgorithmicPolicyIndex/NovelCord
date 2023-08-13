@@ -27,6 +27,7 @@ module.exports = {
 
 		switch (i.options.getSubcommand()) {
 		case "list":
+			// ! I hate this code, but I have to deal with it.
 			const stories: {name: string, id: string}[] = [];
 			options.args = ["list"];
 			await PythonShell.run("handler.py", options).then(results => {
@@ -34,12 +35,11 @@ module.exports = {
 					stories.push(JSON.parse(story));
 				}
 			}).catch(e => {
-				i.reply("There was an error");
-				return submitError(e, c);
+				return submitError(e, c, "Story.ts; List; Python err:");
 			});
 
 			// TODO: Make collector to handle pages and selection of stories
-			// options.args = ["list", (offset for pages, by 8)]
+			// options.args = ["list", (offset)] // Starts at 0-7, +8 for next page 9-15
 			i.reply({ embeds: [new EmbedBuilder({
 				title: "Stories",
 				description: "Filters: (add in code filters functionality)", 

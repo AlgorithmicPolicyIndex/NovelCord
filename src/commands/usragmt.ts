@@ -51,7 +51,7 @@ module.exports = {
 			if (ic.customId == "agree") {
 				await Agreement(ic.user.id, i.guild?.id as string).then(async () => {
 					await userInGuild.roles.add(roleInGuild).catch((err: string) => {
-						submitError(err, c);
+						submitError(err, c, "Usragmt.ts; Line 53; 'await userInGuild...':");
 						return i.editReply("There was an error adding your role. Please wait or notify the Bot Hoster");
 					});
 					await i.editReply({
