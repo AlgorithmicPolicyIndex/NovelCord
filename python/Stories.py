@@ -13,7 +13,7 @@ async def getAllStories():
 		stories = await api.high_level.download_user_stories()
 		return stories
 
-async def getAllStoryData(start):
+async def getAllStoryDataLimit(start):
 	async with API() as api_handler:
 		api = api_handler.api
 		key = api_handler.encryption_key
@@ -24,7 +24,25 @@ async def getAllStoryData(start):
 		storyArray = []
 
 		for story in range(start, start + 6):
-			storyArray.append(stories[story]["data"])
+			# Allows the ability to iterate through 6 stories, even if there are less than 6
+			try:
+				storyArray.append(stories[story]["data"])
+			except: 
+				return storyArray
+		return storyArray
+	
+async def getAllStoryData():
+	async with API() as api_handler:
+		api = api_handler.api
+		key = api_handler.encryption_key
+
+		keystore = await api.high_level.get_keystore(key)
+		stories = await api.high_level.download_user_stories()
+		decrypt_user_data(stories, keystore)
+		storyArray = []
+
+		for story in stories:
+			storyArray.append(story["data"])
 		return storyArray
 
 async def getAllStoriesWithContent():

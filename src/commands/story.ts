@@ -4,8 +4,15 @@ import { CacheType, SlashCommandBuilder, ChatInputCommandInteraction, Client, Em
 import { Options, PythonShell } from "python-shell";
 import { createButton, submitError } from "../functions";
 
+// ! I personally dont like using these variables, because it's a lot of unneeded usage, personally.
+// current page offset, + and - 6 for next and previous
 let currentPage = 0;
+// Total Story count, for max page size and next button disable
 let TotalStories = 0;
+// The Current amount of stories you have gone through, to be compared to Total to disable next button
+let PageStories = 0;
+// Last pages story amount, to make sure PageStories is correct
+let LastPage = 0;
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -37,6 +44,7 @@ module.exports = {
 				TotalStories = results.splice(0, 1)[0];
 				for (const story of results) {
 					stories.push(JSON.parse(story));
+					PageStories++;
 				}
 			}).catch(e => {
 				i.reply("There was an error getting the stories.");
@@ -49,7 +57,7 @@ module.exports = {
 				embeds: [new EmbedBuilder({
 					title: "Stories",
 					// Edit Page when changing pages
-					description: `**Page**: 1/${Math.floor(TotalStories/6)}\n**Filters**: (add in code filters functionality)\n**Current Story**: (insert name and id)`, 
+					description: `**Page**: 1/${Math.round(TotalStories/6)}\n**Filters**: (add in code filters functionality)\n**Current Story**: (insert name and id)`, 
 					fields: stories.map((story, v) => {
 						return { name: `${v+1}:\n${story.name}`, value: story.id, inline: true };
 					}),
@@ -64,6 +72,9 @@ module.exports = {
 				ic.deferUpdate();
 				switch (ic.customId) {
 				// ! There probably is a better way of doing this, but for now, like most new things for this prototype testing, it works for now.
+				// TODO: New idea for stories
+				// TODO: Write function to make custom IDs completely dynamic, for use of Story IDs, to make pass through significantly easier and less reliant on other methods, like arrays
+				// * For now, I actually think I dont need this. As I can call from the Stories array and directly pull from the list. stories[0] for story 1, stories[1] for 2, so on...
 				//#region 
 				case "s-1":
 					break;
@@ -92,6 +103,8 @@ module.exports = {
 						for (const story of results) {
 							stories.push(JSON.parse(story));
 						}
+						PageStories = PageStories - LastPage;	
+						LastPage = stories.length;
 					}).catch(e => {
 						i.editReply("There was an error getting the stories.");
 						return submitError(e, c, "Story.ts; List/Prev; Python err:");
@@ -99,7 +112,7 @@ module.exports = {
 					i.editReply({
 						embeds: [new EmbedBuilder({
 							title: "Stories",
-							description: `**Page**: ${(currentPage/6) + 1}/${Math.floor(TotalStories/6)}\n**Filters**: (add in code filters functionality)\n**Current Story**: (insert name and id)`, 
+							description: `**Page**: ${(currentPage/6) + 1}/${Math.round(TotalStories/6)}\n**Filters**: (add in code filters functionality)\n**Current Story**: (insert name and id)`, 
 							fields: stories.map((story, v) => {
 								return { name: `${v+1}:\n${story.name}`, value: story.id, inline: true };
 							}),
@@ -116,7 +129,9 @@ module.exports = {
 						TotalStories = results.splice(0, 1)[0];
 						for (const story of results) {
 							stories.push(JSON.parse(story));
+							PageStories++;
 						}
+						LastPage = stories.length;
 					}).catch(e => {
 						i.editReply("There was an error getting the stories.");
 						return submitError(e, c, "Story.ts; List/Next; Python err:");
@@ -124,7 +139,7 @@ module.exports = {
 					i.editReply({
 						embeds: [new EmbedBuilder({
 							title: "Stories",
-							description: `**Page**: ${(currentPage/6) + 1}/${Math.floor(TotalStories/6)}\n**Filters**: (add in code filters functionality)\n**Current Story**: (insert name and id)`, 
+							description: `**Page**: ${(currentPage/6) + 1}/${Math.round(TotalStories/6)}\n**Filters**: (add in code filters functionality)\n**Current Story**: (insert name and id)`, 
 							fields: stories.map((story, v) => {
 								return { name: `${v+1}:\n${story.name}`, value: story.id, inline: true };
 							}),
@@ -145,18 +160,16 @@ async function createStoryPageComponents(stories: {name: string, id: string}[]) 
 	const buttons1 = [];
 	const buttons2 = [];
 	for (const i in stories) {
-		// ! There is 100% a better way, but PROTOTYPES. WEE, BAD CODE GO BRR
-		// TODO: Edge case for when stories array is smaller than 6. so previous and next are always present.
 		if (parseInt(i) < 4) {
 			buttons1.push(createButton(`s-${parseInt(i)+1}`, `Story ${parseInt(i)+1}`, ButtonStyle.Primary));
-		} else if (i === "4") { // Grab the 4th story
-			buttons2.push(createButton("prev", "Previous", ButtonStyle.Secondary).setDisabled(currentPage === 0 ? true : false));
+		} else if (i === "4") { // Grab the 5th story
 			buttons2.push(createButton(`s-${parseInt(i)+1}`, `Story ${parseInt(i)+1}`, ButtonStyle.Primary));
-		} else if (i === "5") { // Grab the 5th story
+		} else if (i === "5") { // Grab the 6th story
 			buttons2.push(createButton(`s-${parseInt(i)+1}`, `Story ${parseInt(i)+1}`, ButtonStyle.Primary));
-			buttons2.push(createButton("next", "Next", ButtonStyle.Secondary).setDisabled(currentPage === TotalStories ? true : false));
 		}
 	}
+	buttons2.unshift(createButton("prev", "Previous", ButtonStyle.Secondary).setDisabled(currentPage === 0 ? true : false));
+	buttons2.push(createButton("next", "Next", ButtonStyle.Secondary).setDisabled(PageStories == TotalStories ? true : false));
 	return [new ActionRowBuilder<ButtonBuilder>().addComponents(
 		buttons1
 	), new ActionRowBuilder<ButtonBuilder>().addComponents(

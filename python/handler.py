@@ -1,8 +1,6 @@
 import sys
 import asyncio
-from Stories import getAllStories, getAllStoryData
-from boilerplate import dumps
-from base64 import b64decode
+from Stories import getAllStories, getAllStoryDataLimit, getAllStoryData
 
 CommandPassThrough = sys.argv[1]
 async def handler():
@@ -12,7 +10,7 @@ async def handler():
 			if len(sys.argv) == 3:
 				start = start + int(sys.argv[2])
 
-			allStories = await getAllStoryData(start)
+			allStories = await getAllStoryDataLimit(start)
 			# ! This was for testing
 			# ! "document" is actually the story context for the Ai
 			# ! What I mean, is that it's the ENTIRE STORY, from what I can tell. It may cut off at some point, but I dont know.
@@ -26,5 +24,24 @@ async def handler():
 			print(len(await getAllStories()))
 			for story in allStories:
 				print('{"name": "%s", "id": "%s"}' % (story["title"], story["id"]))
+
+		case "select":
+			"""
+			# TODO: Story Select Preview
+			Returns, Title, ID(s?), Description/preview text
+			and whether or not, it's multiplayer, if it is, return users ids/names
+			"""
+			stories = await getAllStoryData()
+			if len(sys.argv) != 3:
+				return print("Missing Story ID")
+
+			for story in stories:
+				if story["id"] == sys.argv[2]:
+					print('{"name": "%s", "id": "%s", "description": "%s"}' % (
+						story["title"],
+						story["id"],
+						story["textPreview"]
+					))
+			return;
 
 asyncio.run(handler())
