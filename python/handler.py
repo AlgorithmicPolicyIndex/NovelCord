@@ -37,10 +37,11 @@ async def handler():
 
 			for story in stories:
 				if story["id"] == sys.argv[2]:
+					desc = str(story["textPreview"]).splitlines()
 					print('{"name": "%s", "id": "%s", "description": "%s"}' % (
 						story["title"],
 						story["id"],
-						story["textPreview"]
+						" ".join(desc)
 					))
 			return;
 

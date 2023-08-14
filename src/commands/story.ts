@@ -75,25 +75,40 @@ module.exports = {
 				// TODO: New idea for stories
 				// TODO: Write function to make custom IDs completely dynamic, for use of Story IDs, to make pass through significantly easier and less reliant on other methods, like arrays
 				// * For now, I actually think I dont need this. As I can call from the Stories array and directly pull from the list. stories[0] for story 1, stories[1] for 2, so on...
-				//#region 
 				case "s-1":
-					break;
+					await selectStory(stories, 0, options, i, c);
+					return collector.resetTimer({ time: 90 * 1000 });
 				case "s-2":
-					break;
+					await selectStory(stories, 1, options, i, c);
+					return collector.resetTimer({ time: 90 * 1000 });
 				case "s-3":
-					break;
+					await selectStory(stories, 2, options, i, c);
+					return collector.resetTimer({ time: 90 * 1000 });
 				case "s-4":
-					break;
+					await selectStory(stories, 3, options, i, c);
+					return collector.resetTimer({ time: 90 * 1000 });
 				case "s-5":
-					break;
+					await selectStory(stories, 4, options, i, c);
+					return collector.resetTimer({ time: 90 * 1000 });
 				case "s-6":
-					break;
-				case "s-7":
-					break;
-				case "s-8":
-					break;
-					//#endregion
+					await selectStory(stories, 5, options, i, c);
+					return collector.resetTimer({ time: 90 * 1000 });
 
+				case "select":
+					break;
+				case "back":
+					i.editReply({
+						embeds: [new EmbedBuilder({
+							title: "Stories",
+							description: `**Page**: ${(currentPage/6) + 1}/${Math.round(TotalStories/6)}\n**Filters**: (add in code filters functionality)\n**Current Story**: (insert name and id)`, 
+							fields: stories.map((story, v) => {
+								return { name: `${v+1}:\n${story.name}`, value: story.id, inline: true };
+							}),
+							footer: { text: "Time: 1 minute and 30 seconds" }
+						}),],
+						components: await createStoryPageComponents(stories)
+					});
+					return collector.resetTimer({ time: 90 * 1000 });
 				case "prev":
 					currentPage = currentPage - 6;
 					options.args = ["list", currentPage.toString()];
@@ -155,6 +170,32 @@ module.exports = {
 	}
 };
 
+async function selectStory(stories: { id: string; }[], index: number, options: Options, i: ChatInputCommandInteraction<CacheType>, c: Client) {
+	let story: {name?: string, id?: string, description?: string} = {};
+	options.args = ["select", stories[index].id];
+	await PythonShell.run("handler.py", options).then((results) => {
+		story = JSON.parse(results[0]);
+	}).catch(e => {
+		i.reply("There was an error getting the stories.");
+		return submitError(e, c, "Story.ts; List/Select; Python err:");
+	});
+	i.editReply({
+		embeds: [new EmbedBuilder({
+			title: `Select: ${story.name}`,
+			description: `ID: ${story.id}`,
+			fields: [{
+				name: "Text Preview:", value: story.description as string
+			}],
+			footer: { text: "Timer: 1 minute and 30 seconds" }
+		})],
+		components: [
+			new ActionRowBuilder<ButtonBuilder>().addComponents(
+				createButton("select", "Select this story", ButtonStyle.Primary),
+				createButton("back", "Do not select", ButtonStyle.Secondary)
+			)
+		]
+	});
+}
 
 async function createStoryPageComponents(stories: {name: string, id: string}[]) {
 	const buttons1 = [];
