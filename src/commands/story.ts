@@ -3,6 +3,7 @@
 import { CacheType, SlashCommandBuilder, ChatInputCommandInteraction, Client, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, ComponentType } from "discord.js";
 import { Options, PythonShell } from "python-shell";
 import { createButton, submitError } from "../functions";
+import { getStoryData, selectStory } from "../database/stories";
 
 // ! I personally dont like using these variables, because it's a lot of unneeded usage, personally.
 // current page offset, + and - 6 for next and previous
@@ -14,6 +15,8 @@ let PageStories = 0;
 // Last pages story amount, to make sure PageStories is correct
 let LastPage = 0;
 
+let selection: {name?: string, id?: string, preview?: string} = {};
+
 module.exports = {
 	data: new SlashCommandBuilder()
 		.setName("story")
@@ -24,7 +27,7 @@ module.exports = {
 				.setDescription("List all viewable stories.")
 				.addStringOption(o =>
 					o.setName("filters")
-						.setDescription("View stories based on filters")	
+						.setDescription("View stories based on filters | Format: filter1, filter2")	
 				)
 		),
 	async execute(i: ChatInputCommandInteraction<CacheType>, c: Client) {
@@ -34,12 +37,19 @@ module.exports = {
 			mode: "text",
 			scriptPath: "python"
 		};
+		const filters = i.options.getString("filters");
+		
 
 		switch (i.options.getSubcommand()) {
 		case "list":
 			// ! I hate this code, but I have to deal with it.
 			let stories: {name: string, id: string}[] = [];
-			options.args = ["list"];
+			// ! Will refactor this. I wanted to use filters ? filters : "", but that is inserting "" as a arg, which is not what I want.
+			if (!filters) {
+				options.args = ["list", i.user.id, "0"];
+			} else {
+				options.args = ["list", i.user.id, "0", filters];
+			}
 			await PythonShell.run("handler.py", options).then(results => {
 				TotalStories = results.splice(0, 1)[0];
 				for (const story of results) {
@@ -51,13 +61,12 @@ module.exports = {
 				return submitError(e, c, "Story.ts; List; Python err:");
 			});
 
-			// TODO: Make collector to handle pages and selection of stories
-			// options.args = ["list", (offset)] // Starts at 0-7, +8 for next page 9-15
+			const cs = await getStoryData(i.user.id, i.guild?.id as string);
 			const msg = await i.reply({
 				embeds: [new EmbedBuilder({
 					title: "Stories",
-					// Edit Page when changing pages
-					description: `**Page**: 1/${Math.round(TotalStories/6)}\n**Filters**: (add in code filters functionality)\n**Current Story**: (insert name and id)`, 
+					// TODO: Chance Total pages to use the total pages of stories THAT specific user can see
+					description: `**Page**: 1/${Math.ceil(TotalStories/6)}\n**Filters**: ${filters}\n**Current Story**: ${cs.name}\nID: ${cs.id}`, 
 					fields: stories.map((story, v) => {
 						return { name: `${v+1}:\n${story.name}`, value: story.id, inline: true };
 					}),
@@ -72,35 +81,39 @@ module.exports = {
 				ic.deferUpdate();
 				switch (ic.customId) {
 				// ! There probably is a better way of doing this, but for now, like most new things for this prototype testing, it works for now.
-				// TODO: New idea for stories
-				// TODO: Write function to make custom IDs completely dynamic, for use of Story IDs, to make pass through significantly easier and less reliant on other methods, like arrays
-				// * For now, I actually think I dont need this. As I can call from the Stories array and directly pull from the list. stories[0] for story 1, stories[1] for 2, so on...
 				case "s-1":
-					await selectStory(stories, 0, options, i, c);
+					await selectListStory(stories, 0, options, i, c);
 					return collector.resetTimer({ time: 90 * 1000 });
 				case "s-2":
-					await selectStory(stories, 1, options, i, c);
+					await selectListStory(stories, 1, options, i, c);
 					return collector.resetTimer({ time: 90 * 1000 });
 				case "s-3":
-					await selectStory(stories, 2, options, i, c);
+					await selectListStory(stories, 2, options, i, c);
 					return collector.resetTimer({ time: 90 * 1000 });
 				case "s-4":
-					await selectStory(stories, 3, options, i, c);
+					await selectListStory(stories, 3, options, i, c);
 					return collector.resetTimer({ time: 90 * 1000 });
 				case "s-5":
-					await selectStory(stories, 4, options, i, c);
+					await selectListStory(stories, 4, options, i, c);
 					return collector.resetTimer({ time: 90 * 1000 });
 				case "s-6":
-					await selectStory(stories, 5, options, i, c);
+					await selectListStory(stories, 5, options, i, c);
 					return collector.resetTimer({ time: 90 * 1000 });
 
 				case "select":
-					break;
+					await selectStory(i.user.id, i.guild?.id as string, selection as {name: string, id: string});
+					i.editReply({ embeds: [new EmbedBuilder({
+						title: `Selected Story: ${selection.name}`,
+						description: `ID: ${selection.id}`,
+						fields: [{ name: "Text Preview", value: `${selection.preview}` }],
+						footer: { text: "Timer: STOPPED" }
+					})], components: []});
+					return collector.stop();
 				case "back":
 					i.editReply({
 						embeds: [new EmbedBuilder({
 							title: "Stories",
-							description: `**Page**: ${(currentPage/6) + 1}/${Math.round(TotalStories/6)}\n**Filters**: (add in code filters functionality)\n**Current Story**: (insert name and id)`, 
+							description: `**Page**: ${(currentPage/6) + 1}/${Math.ceil(TotalStories/6)}\n**Filters**: ${filters}\n**Current Story**: ${cs.name}\nID: ${cs.id}`, 
 							fields: stories.map((story, v) => {
 								return { name: `${v+1}:\n${story.name}`, value: story.id, inline: true };
 							}),
@@ -111,7 +124,7 @@ module.exports = {
 					return collector.resetTimer({ time: 90 * 1000 });
 				case "prev":
 					currentPage = currentPage - 6;
-					options.args = ["list", currentPage.toString()];
+					options.args = ["list", i.user.id, currentPage.toString()];
 					stories = [];
 					await PythonShell.run("handler.py", options).then(results => {
 						TotalStories = results.splice(0, 1)[0];
@@ -127,7 +140,7 @@ module.exports = {
 					i.editReply({
 						embeds: [new EmbedBuilder({
 							title: "Stories",
-							description: `**Page**: ${(currentPage/6) + 1}/${Math.round(TotalStories/6)}\n**Filters**: (add in code filters functionality)\n**Current Story**: (insert name and id)`, 
+							description: `**Page**: ${(currentPage/6) + 1}/${Math.ceil(TotalStories/6)}\n**Filters**: ${filters}\n**Current Story**: ${cs.name}\nID: ${cs.id}`, 
 							fields: stories.map((story, v) => {
 								return { name: `${v+1}:\n${story.name}`, value: story.id, inline: true };
 							}),
@@ -138,7 +151,7 @@ module.exports = {
 					return collector.resetTimer({ time: 90 * 1000 });
 				case "next":
 					currentPage = currentPage + 6;
-					options.args = ["list", currentPage.toString()];
+					options.args = ["list", i.user.id, currentPage.toString()];
 					stories = [];
 					await PythonShell.run("handler.py", options).then(results => {
 						TotalStories = results.splice(0, 1)[0];
@@ -154,7 +167,7 @@ module.exports = {
 					i.editReply({
 						embeds: [new EmbedBuilder({
 							title: "Stories",
-							description: `**Page**: ${(currentPage/6) + 1}/${Math.round(TotalStories/6)}\n**Filters**: (add in code filters functionality)\n**Current Story**: (insert name and id)`, 
+							description: `**Page**: ${(currentPage/6) + 1}/${Math.ceil(TotalStories/6)}\n**Filters**: ${filters}\n**Current Story**: ${cs.name}\nID: ${cs.id}`, 
 							fields: stories.map((story, v) => {
 								return { name: `${v+1}:\n${story.name}`, value: story.id, inline: true };
 							}),
@@ -170,7 +183,7 @@ module.exports = {
 	}
 };
 
-async function selectStory(stories: { id: string; }[], index: number, options: Options, i: ChatInputCommandInteraction<CacheType>, c: Client) {
+async function selectListStory(stories: { id: string; }[], index: number, options: Options, i: ChatInputCommandInteraction<CacheType>, c: Client) {
 	let story: {name?: string, id?: string, description?: string} = {};
 	options.args = ["select", stories[index].id];
 	await PythonShell.run("handler.py", options).then((results) => {
@@ -179,6 +192,7 @@ async function selectStory(stories: { id: string; }[], index: number, options: O
 		i.reply("There was an error getting the stories.");
 		return submitError(e, c, "Story.ts; List/Select; Python err:");
 	});
+	selection = { name: story.name as string, id: story.id as string, preview: story.description };
 	i.editReply({
 		embeds: [new EmbedBuilder({
 			title: `Select: ${story.name}`,
@@ -211,9 +225,13 @@ async function createStoryPageComponents(stories: {name: string, id: string}[]) 
 	}
 	buttons2.unshift(createButton("prev", "Previous", ButtonStyle.Secondary).setDisabled(currentPage === 0 ? true : false));
 	buttons2.push(createButton("next", "Next", ButtonStyle.Secondary).setDisabled(PageStories == TotalStories ? true : false));
-	return [new ActionRowBuilder<ButtonBuilder>().addComponents(
-		buttons1
-	), new ActionRowBuilder<ButtonBuilder>().addComponents(
-		buttons2
-	)];
+	if (stories.length === 0) {
+		return [];
+	} else {
+		return [new ActionRowBuilder<ButtonBuilder>().addComponents(
+			buttons1
+		), new ActionRowBuilder<ButtonBuilder>().addComponents(
+			buttons2
+		)];
+	}
 }

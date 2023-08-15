@@ -1,5 +1,7 @@
 from boilerplate import API
 from novelai_api.utils import decrypt_user_data, link_content_to_story
+import numpy as np
+import json
 
 # I don't really know Python, so please bare in mind my code is dog water.
 # I'm not exactly sure what I can do to really make this easier, but I will learn
@@ -7,13 +9,29 @@ from novelai_api.utils import decrypt_user_data, link_content_to_story
 # * Feel free to fix any of my terrible mistakes and bad code practices.
 # TODO: Handle Local and Remote stories.
 # TODO: Currently only using remote stories.
-async def getAllStories():
+async def getAllStories(user, filters):
 	async with API() as api_handler:
 		api = api_handler.api
-		stories = await api.high_level.download_user_stories()
-		return stories
+		key = api_handler.encryption_key
 
-async def getAllStoryDataLimit(start):
+		keystore = await api.high_level.get_keystore(key)
+		stories = await api.high_level.download_user_stories()
+		decrypt_user_data(stories, keystore)
+		storyArr = []
+
+		for story in stories:
+			description = story["data"]["description"]
+			try:
+				description = json.loads(description)
+				if np.isin(filters, [x.lower() for x in story["data"]["tags"]]) and description["author"] == user:
+					storyArr.append(story["data"])
+				elif filters == "" and description["author"] == user:
+					storyArr.append(story["data"])
+			except:
+				continue
+		return storyArr
+
+async def getAllStoryDataLimit(start, user, filters):
 	async with API() as api_handler:
 		api = api_handler.api
 		key = api_handler.encryption_key
@@ -24,9 +42,18 @@ async def getAllStoryDataLimit(start):
 		storyArray = []
 
 		for story in range(start, start + 6):
+			description = stories[story]["data"]["description"]
+			try:
+				description = json.loads(description)
+			except:
+				description
 			# Allows the ability to iterate through 6 stories, even if there are less than 6
 			try:
-				storyArray.append(stories[story]["data"])
+				# TODO: Add the "users: []" context for MP stories
+				if np.isin(filters, [x.lower() for x in stories[story]["data"]["tags"]]) and description["author"] == user:
+					storyArray.append(stories[story]["data"])
+				elif filters == "" and description["author"] == user:
+					storyArray.append(stories[story]["data"])
 			except: 
 				return storyArray
 		return storyArray
@@ -50,7 +77,7 @@ async def getAllStoriesWithContent():
 		api = api_handler.api
 		key = api_handler.encryption_key
 		keystore = await api.high_level.get_keystore(key)
-		stories = await getAllStories()
+		stories = await api.high_level.download_user_stories()
 		decrypt_user_data(stories, keystore)
 		story_content = await api.high_level.download_user_story_contents()
 		decrypt_user_data(story_content, keystore)

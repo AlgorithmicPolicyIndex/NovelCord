@@ -6,11 +6,15 @@ CommandPassThrough = sys.argv[1]
 async def handler():
 	match (CommandPassThrough):
 		case "list":
+			user = sys.argv[2]
 			start = 0
-			if len(sys.argv) == 3:
-				start = start + int(sys.argv[2])
+			filters = "";
+			if len(sys.argv) >= 4:
+				start = start + int(sys.argv[3])
+			if len(sys.argv) >= 5:
+				filters = sys.argv[4:]
 
-			allStories = await getAllStoryDataLimit(start)
+			allStories = await getAllStoryDataLimit(start, user, filters)
 			# ! This was for testing
 			# ! "document" is actually the story context for the Ai
 			# ! What I mean, is that it's the ENTIRE STORY, from what I can tell. It may cut off at some point, but I dont know.
@@ -21,16 +25,13 @@ async def handler():
 			# ! Another note, is before "dataposition..." it is the current context of what I actually have, not the selective undo.
 			# * print(b64decode(stories[0]["content"]["data"]["document"]))
 
-			print(len(await getAllStories()))
+			print(len(await getAllStories(user, filters)))
 			for story in allStories:
 				print('{"name": "%s", "id": "%s"}' % (story["title"], story["id"]))
 
 		case "select":
-			"""
-			# TODO: Story Select Preview
-			Returns, Title, ID(s?), Description/preview text
-			and whether or not, it's multiplayer, if it is, return users ids/names
-			"""
+			# TODO: Use same "start", "user" and "filter" from "list" instead of getting ALL stories.
+			# * Unneeded wait time
 			stories = await getAllStoryData()
 			if len(sys.argv) != 3:
 				return print("Missing Story ID")
