@@ -32,7 +32,8 @@ module.exports = {
 		),
 	async execute(i: ChatInputCommandInteraction<CacheType>, c: Client) {
 		// ! Python-Shell is more than likely not the best way to handle this, but it's what I'm using
-		// ! I refer to print as my return value. When I call `return print` it is expected to close and return straight to Typescript with no other results.
+		// ! I refer to print as my return value, in some cases, I use print multiple times, but that is then removed after I get the results array.
+		// ! As such, I print the total stories then the stories right after [10, {...}, {...}], then strip 10 out of the array for [{...}, ...]
 		const options: Options = {
 			mode: "text",
 			scriptPath: "python"
@@ -65,7 +66,6 @@ module.exports = {
 			const msg = await i.reply({
 				embeds: [new EmbedBuilder({
 					title: "Stories",
-					// TODO: Chance Total pages to use the total pages of stories THAT specific user can see
 					description: `**Page**: 1/${Math.ceil(TotalStories/6)}\n**Filters**: ${filters}\n**Current Story**: ${cs.name}\nID: ${cs.id}`, 
 					fields: stories.map((story, v) => {
 						return { name: `${v+1}:\n${story.name}`, value: story.id, inline: true };
@@ -100,6 +100,9 @@ module.exports = {
 					await selectListStory(stories, 5, options, i, c);
 					return collector.resetTimer({ time: 90 * 1000 });
 
+				case "cancel":
+					i.editReply({ content: "Canceled", embeds: [], components: []});
+					return collector.stop();
 				case "select":
 					await selectStory(i.user.id, i.guild?.id as string, selection as {name: string, id: string});
 					i.editReply({ embeds: [new EmbedBuilder({
@@ -225,6 +228,7 @@ async function createStoryPageComponents(stories: {name: string, id: string}[]) 
 	}
 	buttons2.unshift(createButton("prev", "Previous", ButtonStyle.Secondary).setDisabled(currentPage === 0 ? true : false));
 	buttons2.push(createButton("next", "Next", ButtonStyle.Secondary).setDisabled(PageStories == TotalStories ? true : false));
+	buttons2.push(createButton("cancel", "Cancel", ButtonStyle.Danger));
 	if (stories.length === 0) {
 		return [];
 	} else {
