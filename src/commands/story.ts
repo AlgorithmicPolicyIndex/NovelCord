@@ -29,6 +29,9 @@ module.exports = {
 					o.setName("filters")
 						.setDescription("View stories based on filters | Format: filter1, filter2")	
 				)
+		).addSubcommand(sc =>
+			sc.setName("view")
+				.setDescription("View the last interaction with your currently selected story.")
 		),
 	async execute(i: ChatInputCommandInteraction<CacheType>, c: Client) {
 		// ! Python-Shell is more than likely not the best way to handle this, but it's what I'm using
@@ -182,10 +185,22 @@ module.exports = {
 				}
 			});
 			return;
+		case "view":
+			const currentStory = await getStoryData(i.user.id, i.guild?.id as string);
+			console.log(currentStory);
+			// options.args = ["view", currentStory];
+			// PythonShell.run("handler.py", options).then(() => {
+
+			// }).catch(e => {
+			// 	i.reply("There was an error getting the story.");
+			// 	return submitError(e, c, "Story.ts; View; Python err:");
+			// });
 		}
 	}
 };
 
+
+// ? Make a delete button for the specific story?
 async function selectListStory(stories: { id: string; }[], index: number, options: Options, i: ChatInputCommandInteraction<CacheType>, c: Client) {
 	let story: {name?: string, id?: string, description?: string} = {};
 	options.args = ["select", stories[index].id];
@@ -226,6 +241,7 @@ async function createStoryPageComponents(stories: {name: string, id: string}[]) 
 			buttons2.push(createButton(`s-${parseInt(i)+1}`, `Story ${parseInt(i)+1}`, ButtonStyle.Primary));
 		}
 	}
+	// Move 5th story to first row? and make a create story button?
 	buttons2.unshift(createButton("prev", "Previous", ButtonStyle.Secondary).setDisabled(currentPage === 0 ? true : false));
 	buttons2.push(createButton("next", "Next", ButtonStyle.Secondary).setDisabled(PageStories == TotalStories ? true : false));
 	buttons2.push(createButton("cancel", "Cancel", ButtonStyle.Danger));

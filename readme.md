@@ -6,6 +6,7 @@ NovelCord is a Discord Bot meant to integrate NovelAi stories directly into your
 ## Requirements
 - [Python v3.11.2](https://www.python.org/downloads/)  
 	- [NovelAI_API](https://github.com/Aedial/novelai-api/tree/main)
+		- **Found an interesting thing to keep note of. As of right now, 8-16-2023, you can not use Editor v2 on NovelAi. It changes the formatting of the data. You can update stories to the new editor if you want, just note that stories by this bot will not function. To prevent this, change in your settings->interface-> Use Editor V2 for New Stories: off**
 - [NodeJS v18.14.1](https://nodejs.org/en)
 	- Install packages using your preferred manager.
 

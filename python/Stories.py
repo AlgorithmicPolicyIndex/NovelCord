@@ -1,5 +1,7 @@
-from boilerplate import API
+from boilerplate import API, dumps
 from novelai_api.utils import decrypt_user_data, link_content_to_story
+from novelai_api.GlobalSettings import GlobalSettings
+from novelai_api.StoryHandler import NovelAIStory
 import numpy as np
 import json
 
@@ -49,6 +51,8 @@ async def getAllStoryDataLimit(start, user, filters):
 				description
 			# Allows the ability to iterate through 6 stories, even if there are less than 6
 			try:
+				# TODO: MAJOR: UPDATE THIS TO FILTER ALL STORIES BEFORE RETURNING storyArray
+				# TODO: MAJOR: THIS IS TO MAKE SURE THE USER SEES ALL STORIES THEY CAN INTERACT WITH
 				# TODO: Add the "users: []" context for MP stories
 				if np.isin(filters, [x.lower() for x in stories[story]["data"]["tags"]]) and description["author"] == user:
 					storyArray.append(stories[story]["data"])
@@ -85,6 +89,73 @@ async def getAllStoriesWithContent():
 		
 		return stories
 
+async def getStory(id: str):
+	async with API() as api_handler:
+		api = api_handler.api
+		key = api_handler.encryption_key
+		keystore = await api.high_level.get_keystore(key)
+		api.timeout = 30
+
+		globalSettings = GlobalSettings()
+		stories = await api.high_level.download_user_stories()
+		contents = await api.high_level.download_user_story_contents()
+		decrypt_user_data(stories, keystore)
+		decrypt_user_data(contents, keystore)
+		link_content_to_story(stories, contents)
+		story = {}
+		for storyIn in stories:
+			if storyIn["meta"] == id:
+				story = storyIn
+				return
+
+		try:
+			return NovelAIStory(api, keystore, story["meta"], globalSettings, story, story["content"])
+		except Exception as e:
+			await api.session.close()
+			return e
+
+# ! Does not work
+async def generateStory(id: str):
+	async with API() as api_handler:
+		api = api_handler.api
+		key = api_handler.encryption_key
+		keystore = await api.high_level.get_keystore(key)
+		api.timeout = 30
+
+		globalSettings = GlobalSettings()
+		stories = await api.high_level.download_user_stories()
+		contents = await api.high_level.download_user_story_contents()
+		decrypt_user_data(stories, keystore)
+		decrypt_user_data(contents, keystore)
+		link_content_to_story(stories, contents)
+		story = {}
+		for storyIn in stories:
+			if storyIn["meta"] == id:
+				story = storyIn
+				return
+
+		# TODO: NovelAIStory.generate() does not take a arg, it builds it's own prompt via the .build_context()
+		# TODO: Manually build context and append the users tokenized prompt to it.
+		try:
+			story_handler = NovelAIStory(api, keystore, story["meta"], globalSettings, story, story["content"])
+			return await story_handler.generate()
+		except Exception as e:
+			await api.session.close()
+			return e
+	
+
+
+	# ! Seems to grab the settings and context of a story
+	# ! Not entirely sure, the docs don't exactly explain what NovelAIStory stuff do, let alone the example code isn't exactly up to date.
+	# ! Free balling all of this.
+	# await story_handler.load_from_remote()
+	
+	# if story == None:
+	# 	return
+	
+	# for _ in range(10):
+	# 	await story.generate()
+
 # NOTE: Add more for more specific stuff.
 """
 TODO:
@@ -95,4 +166,3 @@ TODO:
 		- Local vs Remote
 	- Allow story settings updates
 """
-# async def getStoryContent():

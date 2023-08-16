@@ -1,6 +1,7 @@
 import sys
 import asyncio
-from Stories import getAllStories, getAllStoryDataLimit, getAllStoryData
+from Stories import getAllStories, getAllStoryDataLimit, getAllStoryData, getStory, generateStory
+from boilerplate import dumps
 
 CommandPassThrough = sys.argv[1]
 async def handler():
@@ -46,4 +47,18 @@ async def handler():
 					))
 			return;
 
+		# ! Originally was the generate command, For now, it's the view command to see last interaction to the AI
+		case "view":
+			if not sys.argv[2]:
+				return print("Missing ID argument")
+			id = sys.arg[2]
+			story = await getStory(id)
+			
+			content = []
+			for frag in story.storycontent["data"]["story"]["fragments"]:
+				if frag["origin"] == "user":
+					content.append(frag["data"].replace(">", "**>**"))
+				else:
+					content.append(frag["data"])
+			print("\n".join(content[-5:]))
 asyncio.run(handler())
