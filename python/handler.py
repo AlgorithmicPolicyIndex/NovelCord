@@ -31,27 +31,28 @@ async def handler():
 				print('{"name": "%s", "id": "%s"}' % (story["title"], story["id"]))
 
 		case "select":
-			# TODO: Use same "start", "user" and "filter" from "list" instead of getting ALL stories.
 			# * Unneeded wait time
 			stories = await getAllStoryData()
 			if len(sys.argv) != 3:
 				return print("Missing Story ID")
 
+			# TODO: Make this faster, instead of just looping through all stories.
 			for story in stories:
 				if story["id"] == sys.argv[2]:
 					desc = str(story["textPreview"]).splitlines()
-					print('{"name": "%s", "id": "%s", "description": "%s"}' % (
+					print('{"name": "%s", "id": "%s", "description": "%s", "tags": "%s"}' % (
 						story["title"],
 						story["id"],
-						" ".join(desc)
+						" ".join(desc).replace('"', ""),
+						", ".join(story["tags"])
 					))
 			return;
 
 		# ! Originally was the generate command, For now, it's the view command to see last interaction to the AI
 		case "view":
-			if not sys.argv[2]:
+			if len(sys.argv) != 3:
 				return print("Missing ID argument")
-			id = sys.arg[2]
+			id = sys.argv[2]
 			story = await getStory(id)
 			
 			content = []

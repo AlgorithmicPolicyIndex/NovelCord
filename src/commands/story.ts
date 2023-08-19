@@ -42,6 +42,7 @@ module.exports = {
 			scriptPath: "python"
 		};
 		const filters = i.options.getString("filters");
+		i.deferReply({ ephemeral: true, fetchReply: true });
 		
 
 		switch (i.options.getSubcommand()) {
@@ -61,12 +62,12 @@ module.exports = {
 					PageStories++;
 				}
 			}).catch(e => {
-				i.reply("There was an error getting the stories.");
+				i.editReply({ content: "There was an error getting the stories.", embeds: [], components: []});
 				return submitError(e, c, "Story.ts; List; Python err:");
 			});
 
 			const cs = await getStoryData(i.user.id, i.guild?.id as string);
-			const msg = await i.reply({
+			const msg = await i.editReply({
 				embeds: [new EmbedBuilder({
 					title: "Stories",
 					description: `**Page**: 1/${Math.ceil(TotalStories/6)}\n**Filters**: ${filters}\n**Current Story**: ${cs.name}\nID: ${cs.id}`, 
@@ -75,8 +76,7 @@ module.exports = {
 					}),
 					footer: { text: "Time: 1 minute and 30 seconds" }
 				})],
-				components: await createStoryPageComponents(stories),
-				ephemeral: true, fetchReply: true
+				components: await createStoryPageComponents(stories)
 			});
 
 			const collector = msg.createMessageComponentCollector({ componentType: ComponentType.Button, time: 90 * 1000 });
@@ -187,20 +187,22 @@ module.exports = {
 			return;
 		case "view":
 			const currentStory = await getStoryData(i.user.id, i.guild?.id as string);
-			// options.args = ["view", currentStory.id];
-			// PythonShell.run("handler.py", options).then(() => {
+			let storyContent: string = "";
+			options.args = ["view", currentStory.id];
+			await PythonShell.run("handler.py", options).then((results) => {
+				console.log(results);
+				storyContent = results[0];
+			}).catch(e => {
+				i.editReply("There was an error getting the story.");
+				return submitError(e, c, "Story.ts; View; Python err:");
+			});
 
-			// }).catch(e => {
-			// 	i.reply("There was an error getting the story.");
-			// 	return submitError(e, c, "Story.ts; View; Python err:");
-			// });
-
-			return i.reply({ embeds: [new EmbedBuilder({
+			return i.editReply({ embeds: [new EmbedBuilder({
 				title: `Current Story: ${currentStory.name}`,
-				fields: [
-					{ name: "ID", value: currentStory.id, inline: false },
-					{ name: "Preview", value: currentStory.preview, inline: false }
-				]
+				description: `ID: ${currentStory.id}`,
+				fields: [{
+					name: "Content", value: `\`\`\`${storyContent}\`\`\``
+				}]
 			})]});
 		}
 	}
@@ -208,12 +210,12 @@ module.exports = {
 
 // ? Make a delete button for the specific story?
 async function selectListStory(stories: { id: string; }[], index: number, options: Options, i: ChatInputCommandInteraction<CacheType>, c: Client) {
-	let story: {name?: string, id?: string, description?: string} = {};
+	let story: {name?: string, id?: string, description?: string, tags?: string} = {};
 	options.args = ["select", stories[index].id];
 	await PythonShell.run("handler.py", options).then((results) => {
 		story = JSON.parse(results[0]);
 	}).catch(e => {
-		i.reply("There was an error getting the stories.");
+		i.editReply({ content: "There was an error getting the stories.", embeds: [], components: []});
 		return submitError(e, c, "Story.ts; List/Select; Python err:");
 	});
 	selection = { name: story.name as string, id: story.id as string, preview: story.description };
@@ -222,6 +224,8 @@ async function selectListStory(stories: { id: string; }[], index: number, option
 			title: `Select: ${story.name}`,
 			description: `ID: ${story.id}`,
 			fields: [{
+				name: "Tags:", value: story.tags?.length as number > 0 ? story.tags as string : "None"
+			},{
 				name: "Text Preview:", value: story.description as string
 			}],
 			footer: { text: "Timer: 1 minute and 30 seconds" }

@@ -109,7 +109,7 @@ async def getStory(id: str):
 		for storyIn in stories:
 			if storyIn["meta"] == id:
 				story = storyIn
-				return
+				continue
 
 		try:
 			return NovelAIStory(api, keystore, story["meta"], globalSettings, story, story["content"])
