@@ -41,23 +41,26 @@ async def getAllStoryDataLimit(start, user, filters):
 		keystore = await api.high_level.get_keystore(key)
 		stories = await api.high_level.download_user_stories()
 		decrypt_user_data(stories, keystore)
+		useableStories = []
 		storyArray = []
 
-		for story in range(start, start + 6):
-			description = stories[story]["data"]["description"]
+		for useableStory in stories:
+			description = useableStory["data"]["description"]
 			try:
 				description = json.loads(description)
 			except:
-				description
+				continue
+			
+			if np.isin(filters, [x.lower() for x in useableStory["data"]["tags"]]) and description["author"] == user:
+				useableStories.append(useableStory["data"])
+			elif filters == "" and description["author"] == user:
+				useableStories.append(useableStory["data"])
+
+		for story in range(start, start + 6):
 			# Allows the ability to iterate through 6 stories, even if there are less than 6
 			try:
-				# TODO: MAJOR: UPDATE THIS TO FILTER ALL STORIES BEFORE RETURNING storyArray
-				# TODO: MAJOR: THIS IS TO MAKE SURE THE USER SEES ALL STORIES THEY CAN INTERACT WITH
 				# TODO: Add the "users: []" context for MP stories
-				if np.isin(filters, [x.lower() for x in stories[story]["data"]["tags"]]) and description["author"] == user:
-					storyArray.append(stories[story]["data"])
-				elif filters == "" and description["author"] == user:
-					storyArray.append(stories[story]["data"])
+				storyArray.append(useableStories[story])
 			except: 
 				return storyArray
 		return storyArray

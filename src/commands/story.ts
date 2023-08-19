@@ -187,18 +187,24 @@ module.exports = {
 			return;
 		case "view":
 			const currentStory = await getStoryData(i.user.id, i.guild?.id as string);
-			console.log(currentStory);
-			// options.args = ["view", currentStory];
+			// options.args = ["view", currentStory.id];
 			// PythonShell.run("handler.py", options).then(() => {
 
 			// }).catch(e => {
 			// 	i.reply("There was an error getting the story.");
 			// 	return submitError(e, c, "Story.ts; View; Python err:");
 			// });
+
+			return i.reply({ embeds: [new EmbedBuilder({
+				title: `Current Story: ${currentStory.name}`,
+				fields: [
+					{ name: "ID", value: currentStory.id, inline: false },
+					{ name: "Preview", value: currentStory.preview, inline: false }
+				]
+			})]});
 		}
 	}
 };
-
 
 // ? Make a delete button for the specific story?
 async function selectListStory(stories: { id: string; }[], index: number, options: Options, i: ChatInputCommandInteraction<CacheType>, c: Client) {
