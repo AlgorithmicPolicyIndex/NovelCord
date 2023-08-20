@@ -48,6 +48,7 @@ module.exports = {
 
 		const collector = msg.createMessageComponentCollector({ componentType: ComponentType.Button, time: 1000 * 30 });
 		collector.on("collect", async ic => {
+			await ic.deferUpdate();
 			if (ic.customId == "agree") {
 				await Agreement(ic.user.id, i.guild?.id as string).then(async () => {
 					await userInGuild.roles.add(roleInGuild).catch((err: string) => {

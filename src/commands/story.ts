@@ -1,6 +1,6 @@
 /* eslint-disable no-case-declarations */
 // ! I DONT LIKE THIS, BUT I'M NOT REALLY WANTING TO DO OPTION HANDLING OUTSIDE THE SWITCH BECAUSE MOST OPTIONS WILL NOT BE USED
-import { CacheType, SlashCommandBuilder, ChatInputCommandInteraction, Client, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, ComponentType, TextInputBuilder, TextInputStyle, ModalBuilder } from "discord.js";
+import { CacheType, SlashCommandBuilder, ChatInputCommandInteraction, Client, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, ComponentType, ModalBuilder, ModalActionRowComponentBuilder, TextInputBuilder, TextInputStyle, Events } from "discord.js";
 import { Options, PythonShell } from "python-shell";
 import { createButton, submitError } from "../functions";
 import { getStoryData, selectStory } from "../database/stories";
@@ -42,7 +42,7 @@ module.exports = {
 			scriptPath: "python"
 		};
 		const filters = i.options.getString("filters");
-		i.deferReply({ ephemeral: true, fetchReply: true });
+		await i.deferReply({ ephemeral: true, fetchReply: true });
 		
 
 		switch (i.options.getSubcommand()) {
@@ -57,6 +57,7 @@ module.exports = {
 			}
 			await PythonShell.run("handler.py", options).then(results => {
 				TotalStories = results.splice(0, 1)[0];
+				PageStories = 0;
 				for (const story of results) {
 					stories.push(JSON.parse(story));
 					PageStories++;
@@ -67,7 +68,7 @@ module.exports = {
 			});
 
 			const cs = await getStoryData(i.user.id, i.guild?.id as string);
-			const msg = await i.editReply({
+			const listMsg = await i.editReply({
 				embeds: [new EmbedBuilder({
 					title: "Stories",
 					description: `**Page**: 1/${Math.ceil(TotalStories/6)}\n**Filters**: ${filters}\n**Current Story**: ${cs.name}\nID: ${cs.id}`, 
@@ -79,33 +80,33 @@ module.exports = {
 				components: await createStoryPageComponents(stories)
 			});
 
-			const collector = msg.createMessageComponentCollector({ componentType: ComponentType.Button, time: 90 * 1000 });
-			collector.on("collect", async ic => {
-				ic.deferUpdate();
+			const listCollector = listMsg.createMessageComponentCollector({ componentType: ComponentType.Button, time: 90 * 1000 });
+			listCollector.on("collect", async ic => {
+				await ic.deferUpdate();
 				switch (ic.customId) {
 				// ! There probably is a better way of doing this, but for now, like most new things for this prototype testing, it works for now.
 				case "s-1":
 					await selectListStory(stories, 0, options, i, c);
-					return collector.resetTimer({ time: 90 * 1000 });
+					return listCollector.resetTimer({ time: 90 * 1000 });
 				case "s-2":
 					await selectListStory(stories, 1, options, i, c);
-					return collector.resetTimer({ time: 90 * 1000 });
+					return listCollector.resetTimer({ time: 90 * 1000 });
 				case "s-3":
 					await selectListStory(stories, 2, options, i, c);
-					return collector.resetTimer({ time: 90 * 1000 });
+					return listCollector.resetTimer({ time: 90 * 1000 });
 				case "s-4":
 					await selectListStory(stories, 3, options, i, c);
-					return collector.resetTimer({ time: 90 * 1000 });
+					return listCollector.resetTimer({ time: 90 * 1000 });
 				case "s-5":
 					await selectListStory(stories, 4, options, i, c);
-					return collector.resetTimer({ time: 90 * 1000 });
+					return listCollector.resetTimer({ time: 90 * 1000 });
 				case "s-6":
 					await selectListStory(stories, 5, options, i, c);
-					return collector.resetTimer({ time: 90 * 1000 });
+					return listCollector.resetTimer({ time: 90 * 1000 });
 
 				case "cancel":
 					i.editReply({ content: "Canceled", embeds: [], components: []});
-					return collector.stop();
+					return listCollector.stop();
 				case "select":
 					await selectStory(i.user.id, i.guild?.id as string, selection as {name: string, id: string});
 					i.editReply({ embeds: [new EmbedBuilder({
@@ -114,7 +115,7 @@ module.exports = {
 						fields: [{ name: "Text Preview", value: `${selection.preview}` }],
 						footer: { text: "Timer: STOPPED" }
 					})], components: []});
-					return collector.stop();
+					return listCollector.stop();
 				case "back":
 					i.editReply({
 						embeds: [new EmbedBuilder({
@@ -127,7 +128,7 @@ module.exports = {
 						}),],
 						components: await createStoryPageComponents(stories)
 					});
-					return collector.resetTimer({ time: 90 * 1000 });
+					return listCollector.resetTimer({ time: 90 * 1000 });
 				case "prev":
 					currentPage = currentPage - 6;
 					options.args = ["list", i.user.id, currentPage.toString()];
@@ -154,7 +155,7 @@ module.exports = {
 						}),],
 						components: await createStoryPageComponents(stories)
 					});
-					return collector.resetTimer({ time: 90 * 1000 });
+					return listCollector.resetTimer({ time: 90 * 1000 });
 				case "next":
 					currentPage = currentPage + 6;
 					options.args = ["list", i.user.id, currentPage.toString()];
@@ -181,7 +182,7 @@ module.exports = {
 						}),],
 						components: await createStoryPageComponents(stories)
 					});
-					return collector.resetTimer({ time: 90 * 1000 });
+					return listCollector.resetTimer({ time: 90 * 1000 });
 				}
 			});
 			return;
@@ -205,13 +206,96 @@ module.exports = {
 			// * (^) Use a dropdown box to determine the setting you want to change? Then using a Modal, like below, to handle the value input?
 			// ? Isn't there like a text box menu? I could use that for typing.
 			// * (^) this requires the use of Modals, I will need to mess around with those. Otherwise this will be a separate command.
-			i.editReply({ embeds: [new EmbedBuilder({
+			const viewMsg = await i.editReply({ embeds: [new EmbedBuilder({
 				title: `Current Story: ${currentStory.name}`,
 				description: `ID: ${currentStory.id}`,
 				fields: [{
 					name: "Last 5 interactions:", value: `${storyContent.join("\n\n")}`
-				}]
-			})]});
+				}],
+			})], components: [
+				new ActionRowBuilder<ButtonBuilder>().addComponents(
+					createButton("type", "Action", ButtonStyle.Primary),
+					createButton("cancel", "Cancel", ButtonStyle.Danger)
+				)
+			]});
+
+			const viewCollector = viewMsg.createMessageComponentCollector({ componentType: ComponentType.Button, time: 40 * 1000 });
+			viewCollector.on("collect", async ic => {
+				switch (ic.customId) {
+				case "type":
+					const modal = new ModalBuilder({
+						custom_id: "actionmodel",
+						title: "Action",
+						components: [
+							new ActionRowBuilder<ModalActionRowComponentBuilder>().addComponents(
+								new TextInputBuilder({
+									custom_id: "textinput",
+									label: "What would you like to do?",
+									style: TextInputStyle.Paragraph,
+									placeholder: "Ex: 'You run to the nearest clinic' or 'You yell \"HELLO!\"'"
+								})
+							)
+						]
+					});
+					await ic.showModal(modal);
+					
+					// ! I hate this, Will need to move to index file. I will create a handler to all Modals.
+					// ! This was purely for testing. I also wasn't expecting it to get this bad.
+					// ! This code is gross as all hell.
+					// I spelled it model, I know.
+					c.on(Events.InteractionCreate, async modelI => {
+						if (!modelI.isModalSubmit()) return;
+						
+						const text = modelI.fields.getTextInputValue("textinput");
+						
+						// Remove First interaction
+						storyContent.shift();
+						const viewModel = await modelI.reply({ embeds: [new EmbedBuilder({
+							title: "Action",
+							description: text,
+							fields: [
+								{ name: "Content:", value: storyContent.join("\n\n") },
+								{ name: "Your Action:", value: text },
+								// Will need to deferReply for this
+								{ name: "Generation:", value: "**Not added**" }
+							]
+						})], components: [
+							new ActionRowBuilder<ButtonBuilder>().addComponents(
+								createButton("cancel", "Cancel", ButtonStyle.Danger)
+							)
+						], ephemeral: true });
+						
+						const viewModalCollector = viewModel.createMessageComponentCollector({ componentType: ComponentType.Button, time: 40 * 1000 });
+						viewModalCollector.on("collect", mic => {
+							if (mic.customId == "cancel") {
+								modelI.editReply({ content: "Canceled", embeds: [new EmbedBuilder({
+									title: "**CANCELED**\nAction",
+									description: text,
+									fields: [
+										{ name: "Content:", value: storyContent.join("\n\n") },
+										{ name: "Your Action:", value: text },
+										// Will need to deferReply for this
+										{ name: "Generation:", value: "**Not added**" }
+									]
+								})], components: []});
+								viewModalCollector.stop();
+								return viewCollector.stop();
+							}
+						});
+					});
+					break;
+					
+				case "cancel":
+					i.editReply({ content: "Canceled", embeds: [new EmbedBuilder({
+						title: `**CANCELED**\nCurrent Story: ${currentStory.name}`,
+						description: `ID: ${currentStory.id}`,
+						fields: [{
+							name: "Last 5 interactions:", value: `${storyContent.join("\n\n")}`
+						}]
+					})], components: []});
+					return viewCollector.stop();
+				}
+			});
 		}
 	}
 };
