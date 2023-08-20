@@ -54,7 +54,7 @@ async def handler():
 				return print("Missing ID argument")
 			id = sys.argv[2]
 			story = await getStory(id)
-				
+
 			content = []
 			for frag in story.storycontent["data"]["story"]["fragments"]:
 				if frag["origin"] == "user":

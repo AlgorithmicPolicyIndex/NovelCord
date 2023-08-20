@@ -1,6 +1,6 @@
 /* eslint-disable no-case-declarations */
 // ! I DONT LIKE THIS, BUT I'M NOT REALLY WANTING TO DO OPTION HANDLING OUTSIDE THE SWITCH BECAUSE MOST OPTIONS WILL NOT BE USED
-import { CacheType, SlashCommandBuilder, ChatInputCommandInteraction, Client, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, ComponentType } from "discord.js";
+import { CacheType, SlashCommandBuilder, ChatInputCommandInteraction, Client, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, ComponentType, TextInputBuilder, TextInputStyle, ModalBuilder } from "discord.js";
 import { Options, PythonShell } from "python-shell";
 import { createButton, submitError } from "../functions";
 import { getStoryData, selectStory } from "../database/stories";
@@ -200,10 +200,12 @@ module.exports = {
 
 			// TODO: Create interaction components to control the story.
 			// * (^) Delete, edit (settings), type, edit?
-			// ? Edit, would create a new row of components and number each line in the embed. so you can specify which line to edit. Tedious, but works.
+			// ? Edit, would create a new row of button components and number each line in the embed. so you can specify which line to edit. Tedious, but works.
 			// ? Use dropdown boxes for edit settings? New thing to me
+			// * (^) Use a dropdown box to determine the setting you want to change? Then using a Modal, like below, to handle the value input?
 			// ? Isn't there like a text box menu? I could use that for typing.
-			return i.editReply({ embeds: [new EmbedBuilder({
+			// * (^) this requires the use of Modals, I will need to mess around with those. Otherwise this will be a separate command.
+			i.editReply({ embeds: [new EmbedBuilder({
 				title: `Current Story: ${currentStory.name}`,
 				description: `ID: ${currentStory.id}`,
 				fields: [{
