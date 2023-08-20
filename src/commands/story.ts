@@ -187,21 +187,27 @@ module.exports = {
 			return;
 		case "view":
 			const currentStory = await getStoryData(i.user.id, i.guild?.id as string);
-			let storyContent: string = "";
+			const storyContent: string[] = [];
 			options.args = ["view", currentStory.id];
 			await PythonShell.run("handler.py", options).then((results) => {
-				console.log(results);
-				storyContent = results[0];
+				results.map(i => {
+					storyContent.push(i);
+				});
 			}).catch(e => {
 				i.editReply("There was an error getting the story.");
-				return submitError(e, c, "Story.ts; View; Python err:");
+				return submitError(e, c, "Story.ts; View; Python err:\nThis could be due to editor v2. Please make sure to use v1");
 			});
 
+			// TODO: Create interaction components to control the story.
+			// * (^) Delete, edit (settings), type, edit?
+			// ? Edit, would create a new row of components and number each line in the embed. so you can specify which line to edit. Tedious, but works.
+			// ? Use dropdown boxes for edit settings? New thing to me
+			// ? Isn't there like a text box menu? I could use that for typing.
 			return i.editReply({ embeds: [new EmbedBuilder({
 				title: `Current Story: ${currentStory.name}`,
 				description: `ID: ${currentStory.id}`,
 				fields: [{
-					name: "Content", value: `\`\`\`${storyContent}\`\`\``
+					name: "Last 5 interactions:", value: `${storyContent.join("\n\n")}`
 				}]
 			})]});
 		}

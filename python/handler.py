@@ -54,12 +54,12 @@ async def handler():
 				return print("Missing ID argument")
 			id = sys.argv[2]
 			story = await getStory(id)
-			
+				
 			content = []
 			for frag in story.storycontent["data"]["story"]["fragments"]:
 				if frag["origin"] == "user":
 					content.append(frag["data"].replace(">", "**>**"))
 				else:
 					content.append(frag["data"])
-			print("\n".join(content[-5:]))
+			print("".join(content[-5:]))
 asyncio.run(handler())
