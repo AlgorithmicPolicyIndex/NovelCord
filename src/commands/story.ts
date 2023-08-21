@@ -271,6 +271,7 @@ module.exports = {
 					
 					const editCollector = editMsg.createMessageComponentCollector({ componentType: ComponentType.Button, time: 40 * 1000 });
 					editCollector.on("collect", ei => {
+						// TODO: Finish this.
 						const editModal = new ModalBuilder({
 							custom_id: "viewEditModal",
 							title: "Edit Interaction",
@@ -280,7 +281,7 @@ module.exports = {
 						});
 						switch (ei.customId) {
 						case "i-1":
-							
+							// TODO: Here
 							return;
 
 						case "cancel":
