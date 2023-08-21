@@ -1,6 +1,7 @@
 import { ActivityType, Client, Events, GatewayIntentBits, PermissionFlagsBits } from "discord.js";
 import { compareDBToRoles, defineCommands, submitError } from "./functions";
 import { config } from "dotenv";
+import { main } from "./ModalEvent";
 config({ path: `${__dirname}/secrets/.env` });
 
 const client = new Client({
@@ -23,6 +24,9 @@ client.on(Events.ClientReady, c => {
 });
 
 client.on(Events.InteractionCreate, async interaction => {
+	if (interaction.isModalSubmit()) {
+		return main(interaction, client);
+	}
 	if (!interaction.isChatInputCommand()) return;
 	const command = interaction.client.commands.get(interaction.commandName);
 	if (!command) return;

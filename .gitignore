@@ -5,3 +5,5 @@ tests/
 pnpm-lock.yaml
 .env
 JSONDB/
+# This is a exclude for a BRB screen I'm making for my stream.
+brb.js

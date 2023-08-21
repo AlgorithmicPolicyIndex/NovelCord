@@ -1,6 +1,6 @@
 /* eslint-disable no-case-declarations */
 // ! I DONT LIKE THIS, BUT I'M NOT REALLY WANTING TO DO OPTION HANDLING OUTSIDE THE SWITCH BECAUSE MOST OPTIONS WILL NOT BE USED
-import { CacheType, SlashCommandBuilder, ChatInputCommandInteraction, Client, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, ComponentType, ModalBuilder, ModalActionRowComponentBuilder, TextInputBuilder, TextInputStyle, Events } from "discord.js";
+import { CacheType, SlashCommandBuilder, ChatInputCommandInteraction, Client, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, ComponentType, ModalBuilder, ModalActionRowComponentBuilder, TextInputBuilder, TextInputStyle } from "discord.js";
 import { Options, PythonShell } from "python-shell";
 import { createButton, submitError } from "../functions";
 import { getStoryData, selectStory } from "../database/stories";
@@ -201,30 +201,32 @@ module.exports = {
 
 			// TODO: Create interaction components to control the story.
 			// * (^) Delete, edit (settings), type, edit?
-			// ? Edit, would create a new row of button components and number each line in the embed. so you can specify which line to edit. Tedious, but works.
-			// ? Use dropdown boxes for edit settings? New thing to me
-			// * (^) Use a dropdown box to determine the setting you want to change? Then using a Modal, like below, to handle the value input?
-			// ? Isn't there like a text box menu? I could use that for typing.
-			// * (^) this requires the use of Modals, I will need to mess around with those. Otherwise this will be a separate command.
+			// ? Edit, would create a new row of button components and number each line in the embed.
+			// * (^) Use Modal TextInput, the default text being the line you select.
+			// ? Edit Memory Settings button
+			// * (^) Modal TextInput, with the default text being the current Memory
 			const viewMsg = await i.editReply({ embeds: [new EmbedBuilder({
 				title: `Current Story: ${currentStory.name}`,
 				description: `ID: ${currentStory.id}`,
 				fields: [{
-					name: "Last 5 interactions:", value: `${storyContent.join("\n\n")}`
+					name: "Last 5 Interactions:", value: `${storyContent.join("\n\n")}`
 				}],
 			})], components: [
 				new ActionRowBuilder<ButtonBuilder>().addComponents(
 					createButton("type", "Action", ButtonStyle.Primary),
+					createButton("edit", "Edit", ButtonStyle.Secondary),
 					createButton("cancel", "Cancel", ButtonStyle.Danger)
 				)
 			]});
 
+			// TODO: Look into making this collector end, when it times out, or is canceled by the user.
+			// TODO: Also look into the modal itself, so if the user cancels the model, they can still use this collector, however, if they submit, it closes this collector.
 			const viewCollector = viewMsg.createMessageComponentCollector({ componentType: ComponentType.Button, time: 40 * 1000 });
 			viewCollector.on("collect", async ic => {
 				switch (ic.customId) {
 				case "type":
 					const modal = new ModalBuilder({
-						custom_id: "actionmodel",
+						custom_id: "viewActionModal",
 						title: "Action",
 						components: [
 							new ActionRowBuilder<ModalActionRowComponentBuilder>().addComponents(
@@ -238,53 +240,57 @@ module.exports = {
 						]
 					});
 					await ic.showModal(modal);
+					await i.editReply({ embeds: [new EmbedBuilder({
+						title: `CANCELED (due to modal. Will look into better way to handle this.)\nCurrent Story: ${currentStory.name}`,
+						description: `ID: ${currentStory.id}`,
+						fields: [{
+							name: "Last 5 Interactions:", value: `${storyContent.join("\n\n")}`
+						}],
+					})]});
+					return viewCollector.stop();
+				case "edit":
+					const temp = [storyContent.map((v, i) => {
+						return `${i+1}: ${v}`;
+					})];
+					// TODO: Look into making this useable with all 5 interactions in the Modal, rather than each individual interaction getting it's own specific modal.
+					const editMsg = await i.editReply({ embeds: [new EmbedBuilder({
+						title: `Current Story: ${currentStory.name}`,
+						description: `ID: ${currentStory.id}`,
+						fields: [{
+							name: "Last 5 Interactions", value: temp.join("\n\n")
+						}]
+					})], components: [
+						new ActionRowBuilder<ButtonBuilder>().addComponents(
+							createButton("i-1", "First", ButtonStyle.Primary),
+							createButton("i-2", "Second", ButtonStyle.Primary),
+							createButton("i-3", "Third", ButtonStyle.Primary),
+							createButton("i-4", "Fourth", ButtonStyle.Primary),
+							createButton("i-5", "Fifth", ButtonStyle.Primary),
+						)
+					]});
 					
-					// ! I hate this, Will need to move to index file. I will create a handler to all Modals.
-					// ! This was purely for testing. I also wasn't expecting it to get this bad.
-					// ! This code is gross as all hell.
-					// I spelled it model, I know.
-					c.on(Events.InteractionCreate, async modelI => {
-						if (!modelI.isModalSubmit()) return;
-						
-						const text = modelI.fields.getTextInputValue("textinput");
-						
-						// Remove First interaction
-						storyContent.shift();
-						const viewModel = await modelI.reply({ embeds: [new EmbedBuilder({
-							title: "Action",
-							description: text,
-							fields: [
-								{ name: "Content:", value: storyContent.join("\n\n") },
-								{ name: "Your Action:", value: text },
-								// Will need to deferReply for this
-								{ name: "Generation:", value: "**Not added**" }
-							]
-						})], components: [
-							new ActionRowBuilder<ButtonBuilder>().addComponents(
-								createButton("cancel", "Cancel", ButtonStyle.Danger)
-							)
-						], ephemeral: true });
-						
-						const viewModalCollector = viewModel.createMessageComponentCollector({ componentType: ComponentType.Button, time: 40 * 1000 });
-						viewModalCollector.on("collect", mic => {
-							if (mic.customId == "cancel") {
-								modelI.editReply({ content: "Canceled", embeds: [new EmbedBuilder({
-									title: "**CANCELED**\nAction",
-									description: text,
-									fields: [
-										{ name: "Content:", value: storyContent.join("\n\n") },
-										{ name: "Your Action:", value: text },
-										// Will need to deferReply for this
-										{ name: "Generation:", value: "**Not added**" }
-									]
-								})], components: []});
-								viewModalCollector.stop();
-								return viewCollector.stop();
-							}
+					const editCollector = editMsg.createMessageComponentCollector({ componentType: ComponentType.Button, time: 40 * 1000 });
+					editCollector.on("collect", ei => {
+						const editModal = new ModalBuilder({
+							custom_id: "viewEditModal",
+							title: "Edit Interaction",
+							components: [new ActionRowBuilder<ModalActionRowComponentBuilder>().addComponents(
+								new TextInputBuilder
+							)]
 						});
+						switch (ei.customId) {
+						case "i-1":
+							
+							return;
+
+						case "cancel":
+							// TODO: remove button components and edit title to be CANCELED:
+							// i.editReply({});
+							return editCollector.stop();
+						}
 					});
-					break;
-					
+					return viewCollector.stop();
+
 				case "cancel":
 					i.editReply({ content: "Canceled", embeds: [new EmbedBuilder({
 						title: `**CANCELED**\nCurrent Story: ${currentStory.name}`,
