@@ -1,5 +1,10 @@
 # I HAVE NO AFFILIATION TO NOVELAI. ANY AND ALL PROBLEMS REGARDING NOVELAI OR THE PYTHON API MUST GO TO THE RESPECTIVE PEOPLE
 
+# Change of Plans
+As of right now, I am having an issue with "meta missing from keystore" I'm currently looking into why I'm getting this error and where it's coming from.  
+However, On Sep, 26th, I will be shipping out for Basic Training in the Army. I don't exactly plan on spending a lot of my time working on this project, as I will be playing games with friends and preparing for a new life.  
+Have a good one and have fun with coding.
+
 # NovelCord
 NovelCord is a Discord Bot meant to integrate NovelAi stories directly into your server.
 
