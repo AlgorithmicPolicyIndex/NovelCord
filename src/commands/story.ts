@@ -239,57 +239,23 @@ module.exports = {
 							)
 						]
 					});
-					await ic.showModal(modal);
-					await i.editReply({ embeds: [new EmbedBuilder({
-						title: `CANCELED (due to modal. Will look into better way to handle this.)\nCurrent Story: ${currentStory.name}`,
-						description: `ID: ${currentStory.id}`,
-						fields: [{
-							name: "Last 5 Interactions:", value: `${storyContent.join("\n\n")}`
-						}],
-					})]});
-					return viewCollector.stop();
+					i.editReply({ components: []});
+					return ic.showModal(modal);
 				case "edit":
-					const temp = [storyContent.map((v, i) => {
-						return `${i+1}: ${v}`;
-					})];
-					// TODO: Look into making this useable with all 5 interactions in the Modal, rather than each individual interaction getting it's own specific modal.
-					const editMsg = await i.editReply({ embeds: [new EmbedBuilder({
-						title: `Current Story: ${currentStory.name}`,
-						description: `ID: ${currentStory.id}`,
-						fields: [{
-							name: "Last 5 Interactions", value: temp.join("\n\n")
-						}]
-					})], components: [
-						new ActionRowBuilder<ButtonBuilder>().addComponents(
-							createButton("i-1", "First", ButtonStyle.Primary),
-							createButton("i-2", "Second", ButtonStyle.Primary),
-							createButton("i-3", "Third", ButtonStyle.Primary),
-							createButton("i-4", "Fourth", ButtonStyle.Primary),
-							createButton("i-5", "Fifth", ButtonStyle.Primary),
-						)
-					]});
-					
-					const editCollector = editMsg.createMessageComponentCollector({ componentType: ComponentType.Button, time: 40 * 1000 });
-					editCollector.on("collect", ei => {
-						// TODO: Finish this.
-						const editModal = new ModalBuilder({
-							custom_id: "viewEditModal",
-							title: "Edit Interaction",
-							components: [new ActionRowBuilder<ModalActionRowComponentBuilder>().addComponents(
-								new TextInputBuilder
-							)]
-						});
-						switch (ei.customId) {
-						case "i-1":
-							// TODO: Here
-							return;
-
-						case "cancel":
-							// TODO: remove button components and edit title to be CANCELED:
-							// i.editReply({});
-							return editCollector.stop();
-						}
+					const editModal = new ModalBuilder({
+						custom_id: "viewEditModal",
+						title: "Edit",
+						components: [
+							// TODO: Make something to change the label to "Your Action 1, Your Action 2...". Though you can see the **>** in the textinput, so I dont REALLY need to do this.
+							new ActionRowBuilder<ModalActionRowComponentBuilder>().addComponents(new TextInputBuilder({ custom_id: "i-1", label: "Interaction 1", value: storyContent[0], style: TextInputStyle.Paragraph })),
+							new ActionRowBuilder<ModalActionRowComponentBuilder>().addComponents(new TextInputBuilder({ custom_id: "i-2", label: "Interaction 2", value: storyContent[1], style: TextInputStyle.Paragraph })),
+							new ActionRowBuilder<ModalActionRowComponentBuilder>().addComponents(new TextInputBuilder({ custom_id: "i-3", label: "Interaction 3", value: storyContent[2], style: TextInputStyle.Paragraph })),
+							new ActionRowBuilder<ModalActionRowComponentBuilder>().addComponents(new TextInputBuilder({ custom_id: "i-4", label: "Interaction 4", value: storyContent[3], style: TextInputStyle.Paragraph })),
+							new ActionRowBuilder<ModalActionRowComponentBuilder>().addComponents(new TextInputBuilder({ custom_id: "i-5", label: "Interaction 5", value: storyContent[4], style: TextInputStyle.Paragraph })),
+						]
 					});
+					i.editReply({ components: []});
+					await ic.showModal(editModal); // TODO: Make the ModalEvent function for this action
 					return viewCollector.stop();
 
 				case "cancel":

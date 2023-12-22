@@ -7,6 +7,8 @@ export function main(i: ModalSubmitInteraction<CacheType>, c: Client) {
 	switch (i.customId) {
 	case "viewActionModal":
 		return viewModal(i, c);
+	case "viewEditModal":
+		return editModal(i, c);
 	}
 }
 
@@ -29,7 +31,7 @@ async function viewModal(i: ModalSubmitInteraction<CacheType>, c: Client) {
 		i.editReply("There was an error getting the story.");
 		return submitError(e, c, "ModalEvent.ts; viewModal; Python err:\nThis could be due to editor v2. Please make sure to use v1");
 	});
-	currentStory.unshit();
+	storyContent.unshift();
 	const embed = new EmbedBuilder({
 		title: "Action",
 		description: `Story ID: ${currentStory.id}`,
@@ -63,4 +65,14 @@ async function viewModal(i: ModalSubmitInteraction<CacheType>, c: Client) {
 			return viewModalCollector.stop();
 		}
 	});
+}
+
+async function editModal(i: ModalSubmitInteraction<CacheType>, c: Client) {
+	// TODO: Format story back into original string and 
+	// ! Figure out how to save it to NovelAI
+	i.reply({
+		content: i.fields.getTextInputValue("i-1")
+	});
+	c;
+	return;
 }

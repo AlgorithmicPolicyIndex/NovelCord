@@ -25,6 +25,8 @@ class API:
 		if "NAI_USERNAME" not in env or "NAI_PASSWORD" not in env:
 			raise RuntimeError("Please ensure that NAI_USERNAME and NAI_PASSWORD are set in your environment")
 
+		# Just a test, but I doubt I will continue messing with this.
+		self._token = env["NAI_TOKEN"]
 		self._username = env["NAI_USERNAME"]
 		self._password = env["NAI_PASSWORD"]
 
@@ -35,6 +37,7 @@ class API:
 		if base_address is not None:
 			self.api.BASE_ADDRESS = base_address
 
+	# Look into how this'll work with Persistent Token
 	@property
 	def encryption_key(self):
 		return get_encryption_key(self._username, self._password)
