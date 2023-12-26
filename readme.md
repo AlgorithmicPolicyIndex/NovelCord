@@ -2,7 +2,7 @@
 
 # Change of Plans ( Updated 202312221045 )
 > As of right now, I am having an issue with "meta missing from keystore" I'm currently looking into why I'm getting this error and where it's coming from.  
->> I have "figured" out the cause of this, and it it due to the account itself having an issue on the NovelAI servers, creating a new account has resolved this issue. Probably should have looked deeper into it, to find the actual cause, but I think that is out of my hands.
+>> I have "figured" out the cause of this, and it it due to the account itself having an issue on the NovelAI servers, creating a new account has resolved this issue. Probably should have looked deeper into it, to find the actual cause, but I think that is out of my hands.  
 >> **Slight problem again. I've managed to kill the account again. There's something happening, with I believe having two instances open at once. Like being on PC and Mobile, then deleting a story or something. I'm not sure what's causing this issue.**
 
 > On 3 Jan, I will be leaving again to finish my job training in the Military. So whatever updates I may make, may or may not be pushed, assuming I have the patience to even start this project again.  
