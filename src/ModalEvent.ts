@@ -55,7 +55,7 @@ async function viewModal(i: ModalSubmitInteraction<CacheType>, c: Client) {
 	});
 
 	const viewModalCollector = actionMsg.createMessageComponentCollector({ componentType: ComponentType.Button, time: 40 * 1000 });
-	viewModalCollector.on("collect", vmi => {
+	viewModalCollector.on("collect", (vmi: ModalSubmitInteraction) => {
 		switch (vmi.customId) {
 		case "cancel":
 			i.editReply({
@@ -70,9 +70,19 @@ async function viewModal(i: ModalSubmitInteraction<CacheType>, c: Client) {
 async function editModal(i: ModalSubmitInteraction<CacheType>, c: Client) {
 	// TODO: Format story back into original string and 
 	// ! Figure out how to save it to NovelAI
-	i.reply({
-		content: i.fields.getTextInputValue("i-1")
-	});
+	const textFields = [];
+	for (let n=0;n<i.fields.components.length;n++) {
+		textFields.push(i.fields.getTextInputValue(`i-${n+1}`));
+	}
+	await i.reply({ embeds: [new EmbedBuilder({
+		// title: `Edited Interactions | Story `,
+		// description: `ID: ${}`,
+		fields: textFields.map((v, idx) => {
+			return {
+				name: `Interaction ${idx+1}`, value: v
+			};
+		})
+	})]});
 	c;
 	return;
 }

@@ -40,7 +40,11 @@ async def getAllStoryDataLimit(start, user, filters):
 
 		keystore = await api.high_level.get_keystore(key)
 		stories = await api.high_level.download_user_stories()
-		
+		print(keystore)
+		print("\nSTORIES:")
+		stories.pop(0)
+		print(stories)
+		print("\n\n")
 		decrypt_user_data(stories, keystore)
 		
 		useableStories = []

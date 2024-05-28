@@ -1,5 +1,14 @@
 # I HAVE NO AFFILIATION TO NOVELAI. ANY AND ALL PROBLEMS REGARDING NOVELAI OR THE PYTHON API MUST GO TO THE RESPECTIVE PEOPLE
 
+# OBSOLETE ( AS OF 202405280424 )
+I don't want to give up on this project, it was really fun to learn the Models in Discord, but I honestly don't think I want to work on this hassle of a project.  
+I say this, because it's super easy to break your account and I haven't found a way to fix it, outside of making a new account. Having that random ass key being lost in the keystore while the story it was attached to doesn't exist, then even manually removing it in code and using the new list AND STILL NOT working.  
+So, here's all of the code that I last updated for this project, about 6 months ago.
+
+I'm, personally, just going to move onto a different project, which is my Twitch Chat Plays code.
+I've been refactoring it the past weekend.  
+I stream on Twitch at AlgorithmicPolicyIndex, I'm going to try a new schedule of every saturday and sunday around 1400 EST
+
 # Change of Plans ( Updated 202312221045 )
 > As of right now, I am having an issue with "meta missing from keystore" I'm currently looking into why I'm getting this error and where it's coming from.  
 >> I have "figured" out the cause of this, and it it due to the account itself having an issue on the NovelAI servers, creating a new account has resolved this issue. Probably should have looked deeper into it, to find the actual cause, but I think that is out of my hands.

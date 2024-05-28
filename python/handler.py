@@ -61,5 +61,5 @@ async def handler():
 					content.append(frag["data"].replace(">", "**>**"))
 				else:
 					content.append(frag["data"])
-			print("".join(content[-5:]))
+			print("".join(list(filter(None, content))[-5:]))
 asyncio.run(handler())

@@ -208,9 +208,11 @@ module.exports = {
 			const viewMsg = await i.editReply({ embeds: [new EmbedBuilder({
 				title: `Current Story: ${currentStory.name}`,
 				description: `ID: ${currentStory.id}`,
-				fields: [{
-					name: "Last 5 Interactions:", value: `${storyContent.join("\n\n")}`
-				}],
+				fields: storyContent.map((v, idx) =>{
+					return {
+						name: `Interaction ${idx+1}:`, value: `${v}`
+					};
+				})
 			})], components: [
 				new ActionRowBuilder<ButtonBuilder>().addComponents(
 					createButton("type", "Action", ButtonStyle.Primary),
@@ -245,26 +247,24 @@ module.exports = {
 					const editModal = new ModalBuilder({
 						custom_id: "viewEditModal",
 						title: "Edit",
-						components: [
-							// TODO: Make something to change the label to "Your Action 1, Your Action 2...". Though you can see the **>** in the textinput, so I dont REALLY need to do this.
-							new ActionRowBuilder<ModalActionRowComponentBuilder>().addComponents(new TextInputBuilder({ custom_id: "i-1", label: "Interaction 1", value: storyContent[0], style: TextInputStyle.Paragraph })),
-							new ActionRowBuilder<ModalActionRowComponentBuilder>().addComponents(new TextInputBuilder({ custom_id: "i-2", label: "Interaction 2", value: storyContent[1], style: TextInputStyle.Paragraph })),
-							new ActionRowBuilder<ModalActionRowComponentBuilder>().addComponents(new TextInputBuilder({ custom_id: "i-3", label: "Interaction 3", value: storyContent[2], style: TextInputStyle.Paragraph })),
-							new ActionRowBuilder<ModalActionRowComponentBuilder>().addComponents(new TextInputBuilder({ custom_id: "i-4", label: "Interaction 4", value: storyContent[3], style: TextInputStyle.Paragraph })),
-							new ActionRowBuilder<ModalActionRowComponentBuilder>().addComponents(new TextInputBuilder({ custom_id: "i-5", label: "Interaction 5", value: storyContent[4], style: TextInputStyle.Paragraph })),
-						]
+						components: storyContent.map((value, index) => {
+							return new ActionRowBuilder<ModalActionRowComponentBuilder>().addComponents(new TextInputBuilder({ custom_id: `i-${index+1}`, label: `Interaction ${index+1}`, value: value, style: TextInputStyle.Paragraph }));
+						})
+						
 					});
 					i.editReply({ components: []});
-					await ic.showModal(editModal); // TODO: Make the ModalEvent function for this action
+					await ic.showModal(editModal);
 					return viewCollector.stop();
 
 				case "cancel":
 					i.editReply({ content: "Canceled", embeds: [new EmbedBuilder({
 						title: `**CANCELED**\nCurrent Story: ${currentStory.name}`,
 						description: `ID: ${currentStory.id}`,
-						fields: [{
-							name: "Last 5 interactions:", value: `${storyContent.join("\n\n")}`
-						}]
+						fields: storyContent.map((v, idx) =>{
+							return {
+								name: `Interaction ${idx+1}:`, value: `${v}`
+							};
+						})
 					})], components: []});
 					return viewCollector.stop();
 				}
