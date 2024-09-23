@@ -4,10 +4,10 @@ import { Routes, REST } from "discord.js";
 import * as fs from "fs";
 import * as path from "path";
 import { config } from "dotenv";
-config({ path: `${__dirname}/secrets/.env` });
+config({ path: path.join(__dirname, "..", "secrets", ".env") });
 
 const commands: any[] = [];
-const commandsPath = path.join(__dirname, "commands");
+const commandsPath = path.join(__dirname, "..", "commands");
 const commandFiles = fs
 	.readdirSync(commandsPath)
 	.filter((file) => file.endsWith(".js"));

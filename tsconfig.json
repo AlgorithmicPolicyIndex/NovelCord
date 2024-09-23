@@ -27,12 +27,13 @@
 		"emitDecoratorMetadata": true,
 		"experimentalDecorators": true,
 		"downlevelIteration": true,
-		"declaration": true,
+		"declaration": false,
 
 		"pretty": true,
 	},
 	"include": [
 		"typings/**/*",
-		"src/**/*"
-, "src/commands/config.ts"	]
+		"src/**/*",
+		"src/commands/config.ts"
+	]
 }

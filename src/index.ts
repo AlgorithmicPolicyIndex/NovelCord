@@ -2,7 +2,8 @@ import { ActivityType, Client, Events, GatewayIntentBits, PermissionFlagsBits } 
 import { compareDBToRoles, defineCommands, submitError } from "./functions";
 import { config } from "dotenv";
 import { main } from "./ModalEvent";
-config({ path: `${__dirname}/secrets/.env` });
+import path = require("path");
+config({ path: path.join(__dirname, "..", "secrets", ".env") });
 
 const client = new Client({
 	intents: [

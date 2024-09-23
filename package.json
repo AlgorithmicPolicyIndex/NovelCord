@@ -5,25 +5,26 @@
   "main": "index.js",
   "scripts": {
     "build": "tsc",
-    "test": "pnpm build && pnpm deploy:guild:create dev && node build/index",
-    "deploy:guild:create": "node build/deploy-guild create",
-    "deploy:guild:delete": "node build/deploy-guild delete",
-    "deploy:global:create": "node build/deploy-global create",
-    "deploy:global:delete": "node build/deploy-global delete",
+    "test": "bun run build && bun run deploy:guild:create dev && node build/index",
+    "deploy:guild:create": "node build/deploy/deploy-guild create",
+    "deploy:guild:delete": "node build/deploy/deploy-guild delete",
+    "deploy:global:create": "node build/deploy/deploy-global create",
+    "deploy:global:delete": "node build/deploy/deploy-global delete",
     "start": "node build/index"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "@types/node": "^20.12.8",
+    "@types/node": "^20.16.5",
     "@typescript-eslint/eslint-plugin": "^6.21.0",
     "@typescript-eslint/parser": "^6.21.0",
-    "eslint": "^8.57.0",
-    "typescript": "^5.4.5"
+    "eslint": "^8.57.1",
+    "typescript": "^5.6.2"
   },
   "dependencies": {
-    "discord.js": "^14.14.1",
+    "@ibaraki-douji/novelai": "^0.0.1-alpha.7",
+    "discord.js": "^14.16.2",
     "dotenv": "^16.4.5",
     "node-json-db": "^2.3.0",
     "python-shell": "^5.0.0"

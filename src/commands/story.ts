@@ -4,6 +4,8 @@ import { CacheType, SlashCommandBuilder, ChatInputCommandInteraction, Client, Em
 import { Options, PythonShell } from "python-shell";
 import { createButton, submitError } from "../functions";
 import { getStoryData, selectStory } from "../database/stories";
+import { getAllStories } from "../novalAi";
+import { StoryMetadata } from "@ibaraki-douji/novelai";
 
 // ! I personally dont like using these variables, because it's a lot of unneeded usage, personally.
 // current page offset, + and - 6 for next and previous
@@ -13,7 +15,7 @@ let TotalStories = 0;
 // The Current amount of stories you have gone through, to be compared to Total to disable next button
 let PageStories = 0;
 // Last pages story amount, to make sure PageStories is correct
-let LastPage = 0;
+// let LastPage = 0;
 
 let selection: {name?: string, id?: string, preview?: string} = {};
 
@@ -41,39 +43,21 @@ module.exports = {
 			mode: "text",
 			scriptPath: "python"
 		};
-		const filters = i.options.getString("filters");
+		const filters = i.options.getString("filters")?.split(", ");
 		await i.deferReply({ ephemeral: true, fetchReply: true });
 		
 
 		switch (i.options.getSubcommand()) {
 		case "list":
-			// ! I hate this code, but I have to deal with it.
-			let stories: {name: string, id: string}[] = [];
-			// ! Will refactor this. I wanted to use filters ? filters : "", but that is inserting "" as a arg, which is not what I want.
-			if (!filters) {
-				options.args = ["list", i.user.id, "0"];
-			} else {
-				options.args = ["list", i.user.id, "0", filters];
-			}
-			await PythonShell.run("handler.py", options).then(results => {
-				TotalStories = results.splice(0, 1)[0];
-				PageStories = 0;
-				for (const story of results) {
-					stories.push(JSON.parse(story));
-					PageStories++;
-				}
-			}).catch(e => {
-				i.editReply({ content: "There was an error getting the stories.", embeds: [], components: []});
-				return submitError(e, c, "Story.ts; List; Python err:");
-			});
-
+			let stories = await getAllStories(i.user.id, filters);
+			
 			const cs = await getStoryData(i.user.id, i.guild?.id as string);
 			const listMsg = await i.editReply({
 				embeds: [new EmbedBuilder({
 					title: "Stories",
-					description: `**Page**: 1/${Math.ceil(TotalStories/6)}\n**Filters**: ${filters}\n**Current Story**: ${cs.name}\nID: ${cs.id}`, 
-					fields: stories.map((story, v) => {
-						return { name: `${v+1}:\n${story.name}`, value: story.id, inline: true };
+					description: `**Page**: 1/${Math.ceil(stories.length/6)}\n**Filters**: ${filters}\n**Current Story**: ${cs.name}\nID: ${cs.id}`, 
+					fields: stories.slice(currentPage, currentPage+5).map((story, v) => {
+						return { name: `${v+1}:\n${story.title}`, value: story.remoteStoryId, inline: true };
 					}),
 					footer: { text: "Time: 1 minute and 30 seconds" }
 				})],
@@ -84,24 +68,9 @@ module.exports = {
 			listCollector.on("collect", async ic => {
 				await ic.deferUpdate();
 				switch (ic.customId) {
-				// ! There probably is a better way of doing this, but for now, like most new things for this prototype testing, it works for now.
-				case "s-1":
-					await selectListStory(stories, 0, options, i, c);
-					return listCollector.resetTimer({ time: 90 * 1000 });
-				case "s-2":
-					await selectListStory(stories, 1, options, i, c);
-					return listCollector.resetTimer({ time: 90 * 1000 });
-				case "s-3":
-					await selectListStory(stories, 2, options, i, c);
-					return listCollector.resetTimer({ time: 90 * 1000 });
-				case "s-4":
-					await selectListStory(stories, 3, options, i, c);
-					return listCollector.resetTimer({ time: 90 * 1000 });
-				case "s-5":
-					await selectListStory(stories, 4, options, i, c);
-					return listCollector.resetTimer({ time: 90 * 1000 });
-				case "s-6":
-					await selectListStory(stories, 5, options, i, c);
+				// TODO: Fix and make uncluttered.
+				default:
+					await selectListStory(stories, parseInt(ic.customId.split('-')[1])-1, i);
 					return listCollector.resetTimer({ time: 90 * 1000 });
 
 				case "cancel":
@@ -122,7 +91,7 @@ module.exports = {
 							title: "Stories",
 							description: `**Page**: ${(currentPage/6) + 1}/${Math.ceil(TotalStories/6)}\n**Filters**: ${filters}\n**Current Story**: ${cs.name}\nID: ${cs.id}`, 
 							fields: stories.map((story, v) => {
-								return { name: `${v+1}:\n${story.name}`, value: story.id, inline: true };
+								return { name: `${v+1}:\n${story.title}`, value: story.remoteStoryId, inline: true };
 							}),
 							footer: { text: "Time: 1 minute and 30 seconds" }
 						}),],
@@ -131,25 +100,12 @@ module.exports = {
 					return listCollector.resetTimer({ time: 90 * 1000 });
 				case "prev":
 					currentPage = currentPage - 6;
-					options.args = ["list", i.user.id, currentPage.toString()];
-					stories = [];
-					await PythonShell.run("handler.py", options).then(results => {
-						TotalStories = results.splice(0, 1)[0];
-						for (const story of results) {
-							stories.push(JSON.parse(story));
-						}
-						PageStories = PageStories - LastPage;	
-						LastPage = stories.length;
-					}).catch(e => {
-						i.editReply("There was an error getting the stories.");
-						return submitError(e, c, "Story.ts; List/Prev; Python err:");
-					});
 					i.editReply({
 						embeds: [new EmbedBuilder({
 							title: "Stories",
 							description: `**Page**: ${(currentPage/6) + 1}/${Math.ceil(TotalStories/6)}\n**Filters**: ${filters}\n**Current Story**: ${cs.name}\nID: ${cs.id}`, 
 							fields: stories.map((story, v) => {
-								return { name: `${v+1}:\n${story.name}`, value: story.id, inline: true };
+								return { name: `${v+1}:\n${story.title}`, value: story.remoteStoryId, inline: true };
 							}),
 							footer: { text: "Time: 1 minute and 30 seconds" }
 						}),],
@@ -158,25 +114,12 @@ module.exports = {
 					return listCollector.resetTimer({ time: 90 * 1000 });
 				case "next":
 					currentPage = currentPage + 6;
-					options.args = ["list", i.user.id, currentPage.toString()];
-					stories = [];
-					await PythonShell.run("handler.py", options).then(results => {
-						TotalStories = results.splice(0, 1)[0];
-						for (const story of results) {
-							stories.push(JSON.parse(story));
-							PageStories++;
-						}
-						LastPage = stories.length;
-					}).catch(e => {
-						i.editReply("There was an error getting the stories.");
-						return submitError(e, c, "Story.ts; List/Next; Python err:");
-					});
 					i.editReply({
 						embeds: [new EmbedBuilder({
 							title: "Stories",
 							description: `**Page**: ${(currentPage/6) + 1}/${Math.ceil(TotalStories/6)}\n**Filters**: ${filters}\n**Current Story**: ${cs.name}\nID: ${cs.id}`, 
 							fields: stories.map((story, v) => {
-								return { name: `${v+1}:\n${story.name}`, value: story.id, inline: true };
+								return { name: `${v+1}:\n${story.title}`, value: story.remoteStoryId, inline: true };
 							}),
 							footer: { text: "Time: 1 minute and 30 seconds" }
 						}),],
@@ -274,24 +217,18 @@ module.exports = {
 };
 
 // ? Make a delete button for the specific story?
-async function selectListStory(stories: { id: string; }[], index: number, options: Options, i: ChatInputCommandInteraction<CacheType>, c: Client) {
-	let story: {name?: string, id?: string, description?: string, tags?: string} = {};
-	options.args = ["select", stories[index].id];
-	await PythonShell.run("handler.py", options).then((results) => {
-		story = JSON.parse(results[0]);
-	}).catch(e => {
-		i.editReply({ content: "There was an error getting the stories.", embeds: [], components: []});
-		return submitError(e, c, "Story.ts; List/Select; Python err:");
-	});
-	selection = { name: story.name as string, id: story.id as string, preview: story.description };
+async function selectListStory(stories: StoryMetadata[], index: number, i: ChatInputCommandInteraction<CacheType>) {
+	let story = stories[index]
+
+	selection = { name: story.title as string, id: story.remoteStoryId as string, preview: story.textPreview };
 	i.editReply({
 		embeds: [new EmbedBuilder({
-			title: `Select: ${story.name}`,
-			description: `ID: ${story.id}`,
+			title: `Select: ${story.title}`,
+			description: `ID: ${story.remoteStoryId}`,
 			fields: [{
-				name: "Tags:", value: story.tags?.length as number > 0 ? story.tags as string : "None"
+				name: "Tags:", value: story.tags?.length as number > 0 ? story.tags.join(", ") : "None"
 			},{
-				name: "Text Preview:", value: story.description as string
+				name: "Text Preview:", value: story.textPreview as string
 			}],
 			footer: { text: "Timer: 1 minute and 30 seconds" }
 		})],
@@ -304,7 +241,7 @@ async function selectListStory(stories: { id: string; }[], index: number, option
 	});
 }
 
-async function createStoryPageComponents(stories: {name: string, id: string}[]) {
+async function createStoryPageComponents(stories: StoryMetadata[]) {
 	const buttons1 = [];
 	const buttons2 = [];
 	for (const i in stories) {

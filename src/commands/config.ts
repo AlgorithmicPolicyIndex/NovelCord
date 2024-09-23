@@ -16,8 +16,7 @@ module.exports = {
 				.setDescription("Select the channel NovelCord is used.")
 				.setRequired(false)
 		)
-		.setDefaultMemberPermissions(PermissionFlagsBits.Administrator)
-		.setDMPermission(false),
+		.setDefaultMemberPermissions(PermissionFlagsBits.Administrator),
 	async execute(i: ChatInputCommandInteraction<CacheType>, c: Client) {
 		const ModChannel = i.options.getChannel("mod-channel"); // * local mod channel
 		const NovelChannel = i.options.getChannel("novel-channel");
@@ -56,7 +55,7 @@ module.exports = {
 				});
 			}).catch((err: string) => {
 				i.reply("There was an error creating the new settings entry");
-				return submitError(err, c, "Config.ts; Line 35; 'if (!settingsExist..)':");
+				return submitError(err, c, "Config.ts; Line 34; 'if (!settingsExist..)':");
 			});
 		}
 		const settingsData = await getSettings(i.guild?.id as string);
@@ -122,7 +121,7 @@ module.exports = {
 					});
 					return collector.stop();
 				}).catch((err: string) => {
-					return submitError(err, c, "Config.ts; Line 107; 'await settings(...)':");
+					return submitError(err, c, "Config.ts; Line 106; 'await settings(...)':");
 				});
 			} else if (ic.customId == "disagree") {
 				i.editReply({
