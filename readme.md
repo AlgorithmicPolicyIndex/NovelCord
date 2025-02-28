@@ -1,9 +1,9 @@
 # I HAVE NO AFFILIATION TO NOVELAI. ANY AND ALL PROBLEMS REGARDING NOVELAI OR THE PYTHON API MUST GO TO THE RESPECTIVE PEOPLE
 
-# GUESS WHAT
-I found a working NovelAi library on NPM that isn't giving me stupid errors.
-However, it does on compile. So I will be forking the library and doing custom fixes to it, so if you have compile errors, you'll have to figure out the fix yourself, until I can explain it easier or have the library created myself.
-I'm currently working on the View Command, then I can get back to working on the Bot again. IT NO LONGER REQUIRES PYTHON EITHER. I will be updating EVERYTHING over this next week or so when I have the time to work on it.
+# Archive Notice
+I will be looking into this project again. If I am unable to get story contect to properly decode via Python or NPM NAI packages, I will be archiving this project.  
+Hopefully, it does not resort to such action, but I havent touched this project in awhile and the decoding is mostly out of my hands. We'll see how it goes.  
+Thing to note; This project does not reflect my current coding habbits now, so I would be rewritting some of this if i really want to do things. If decoding works and the project works normally, i will be streaming development of this Bot and the rewrite.
 
 # NovelCord
 NovelCord is a Discord Bot meant to integrate NovelAi stories directly into your server.
